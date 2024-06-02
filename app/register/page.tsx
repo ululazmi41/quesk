@@ -111,7 +111,7 @@ export default function Login() {
             src="/register.png"
             width={100}
             height={100}
-            alt="login icon"
+            alt="register icon"
           />
           <p className="text-center text-gray-700 text-lg font-bold mb-2">Register</p>
           <div className="mb-4">
