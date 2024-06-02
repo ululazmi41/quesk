@@ -40,6 +40,27 @@ class Database {
     }
   }
   
+  async register(user: User): Promise<{ success: boolean, emailExist: boolean }> {
+    const { data } = await supabase.from(TABLE_USER).select().eq("email", user.email)
+    if (data!.length > 0) {
+      return {
+        success: false,
+        emailExist: true
+      }
+    }
+
+    const { error } = await supabase.from(TABLE_USER).insert(user)
+
+    if (error) {
+      throw error
+    }
+
+    return {
+      success: true,
+      emailExist: false
+    }
+  }
+  
   // async put(id: number, post: Post) {
   //   const { error } = await supabase.from(TABLE).update(post).eq('id', id)
   //   return error
