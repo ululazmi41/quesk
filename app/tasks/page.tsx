@@ -149,6 +149,7 @@ export default function Home() {
                 rows={2}
                 onInput={onDescriptionChangeHandler}
                 placeholder="Description"
+                value={description}
                 required
               ></textarea>
             </div>

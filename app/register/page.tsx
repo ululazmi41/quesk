@@ -7,12 +7,7 @@ import "@/app/style/loading.css"
 
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-
-const Loading = () => {
-  return (
-    <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
-  )
-}
+import { Loading } from '../tasks/components/loading'
 
 export default function Login() {
   const [isLoading, setLoading] = useState(false)
