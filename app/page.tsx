@@ -11,6 +11,8 @@ export default function Home() {
   const [id, setId] = useState("")
   const { push } = useRouter()
 
+  const placeholderId = "1"
+
   useEffect(() => {
     const cookie = document.cookie
     if (cookie === "") {
@@ -37,8 +39,13 @@ export default function Home() {
     console.log(search)
   }
 
-  const navigateNewTask = () => {
-    push('/task')
+  const navigateTask = (id?: string) => {
+    console.log(id)
+    if (id) {
+      push(`/task/${id}`)
+    } else {
+      push('/task')
+    }
   }
 
   return (
@@ -88,7 +95,7 @@ export default function Home() {
             </div>
             <button
               className="border rounded-md cursor-pointer bg-black text-white hover:bg-gray-700 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
-              onClick={navigateNewTask}>
+              onClick={() => navigateTask()}>
               + Create
             </button>
           </div>
@@ -96,14 +103,14 @@ export default function Home() {
           {/* Middle */}
           <div className="bg-white h-max w-6/12 pt-2 pb-8 px-4 rounded-sm">
             <h2 className="font-bold">My Task</h2>
-            <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 mt-2 cursor-pointer transition transform" onClick={navigateNewTask}>
+            <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 mt-2 cursor-pointer transition transform" onClick={() => navigateTask()}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
               Add a task
             </div>
             <div className="mt-2"></div>
-            <div className="pl-1 flex items-center cursor-pointer hover:text-gray-700">
+            <div className="pl-1 flex items-center cursor-pointer hover:text-gray-700" onClick={() => navigateTask(placeholderId)}>
               {/* Left */}
               <div>
                 <Image
