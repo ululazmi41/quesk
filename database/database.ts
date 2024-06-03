@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { User } from '@/models/enum/User'
+import { Task } from '@/models/enum/Task'
 
 const TABLE_USER = 'users'
+const TABLE_TASK = 'tasks'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
@@ -60,16 +62,38 @@ class Database {
       emailExist: false
     }
   }
-  
-  // async put(id: number, post: Post) {
-  //   const { error } = await supabase.from(TABLE).update(post).eq('id', id)
-  //   return error
-  // }
 
-  // async delete(id: number) {
-  //   const { error } = await supabase.from(TABLE).delete().eq('id', id)
-  //   return error
-  // }
+  async getTasks() {
+    const { data, error } = await supabase.from(TABLE_TASK).select()
+    return { data, error }
+  }
+
+  async getTask(id: number) {
+    const { data, error } = await supabase.from(TABLE_TASK).select().eq("id", id)
+    if (error) {
+      throw error
+    }
+    if (data!.length > 0) {
+      return { exist: true, data: data[0] }
+    }
+    return { exist: false, data: {} }
+  }
+
+  async postTask(task: Task) {
+    const error = await supabase.from(TABLE_TASK).insert(task)
+    return error
+  }
+
+  async putTask(task: Task) {
+    task.updated_at = (new Date()).toISOString()
+    const { error } = await supabase.from(TABLE_TASK).update(task).eq('id', task.id)
+    return error
+  }
+
+  async deleteTask(id: number) {
+    const { error } = await supabase.from(TABLE_TASK).delete().eq('id', id)
+    return error
+  }
 }
 
 const database = new Database()
