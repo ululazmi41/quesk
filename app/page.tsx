@@ -1,31 +1,68 @@
 "use client"
 
-import Image from 'next/image';
+import Image from 'next/image'
 import { redirect, useRouter } from 'next/navigation'
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react'
 
 import "@/app/globals.css"
+import TaskComponent from './components/TaskComponent'
+import { Task } from '@/models/enum/Task'
+import { Loading } from './components/loading'
+
+function EmptyTask({ message }: { message: string }) {
+  return (
+    <>
+      <Image
+        className="m-auto"
+        src="/empty.png"
+        width={84}
+        height={84}
+        alt="no task created icon"
+      />
+      <p className="font-lg text-center mt-2 text-gray-800">{message}</p>
+    </>
+  )
+}
 
 export default function Home() {
-  const [isModalSelected, setModalSelected] = useState(false)
   const [id, setId] = useState("")
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [tasksFiltered, setTasksFiltered] = useState<Task[]>([])
+  const [isLoading, setLoading] = useState(true)
+  const [isInititated, setInititated] = useState(false)
+  const [isModalSelected, setModalSelected] = useState(false)
+
+  // nav
   const { push } = useRouter()
 
-  const placeholderId = "1"
-
   useEffect(() => {
-    const cookie = document.cookie
-    if (cookie === "") {
-      redirect("/login")
-    } else {
-      const userId = cookie.split('=')[1]
-      if (userId === "") {
+    if (!isInititated) {
+      const cookie = document.cookie
+      if (cookie === "") {
         redirect("/login")
       } else {
-        setId(userId)
+        const userId = cookie.split('=')[1]
+        if (userId === "") {
+          redirect("/login")
+        } else {
+          setId(userId)
+
+          // get tasks
+          const asyncFunc = async () => {
+            const response = await fetch(`/api/tasks`)
+            const { success, data } = await response.json()
+            if (success) {
+              setTasks(data)
+              setTasksFiltered(data)
+            }
+            setLoading(false)
+            setInititated(true)
+          }
+          asyncFunc()
+        }
       }
     }
-  }, [])
+  }, [isInititated])
 
   const handleLogout = () => {
     document.cookie = "userId=;SameSite=None; Secure"
@@ -36,15 +73,73 @@ export default function Home() {
     const searchElement: HTMLInputElement = document.querySelector('#search')!
     const search = searchElement.value
 
-    console.log(search)
+    if (!isInititated) {
+      return
+    }
+
+    if (search === "") {
+      setTasksFiltered(tasks)
+    } else {
+      const filtered = tasks.filter(t => t.title.includes(search))
+      setTasksFiltered(filtered)
+    }
   }
 
-  const navigateTask = (id?: string) => {
-    console.log(id)
-    if (id) {
-      push(`/task/${id}`)
+  const refreshTasks = async () => {
+    setLoading(true)
+
+    const response = await fetch(`/api/tasks`)
+    const { success, data } = await response.json()
+    if (success) {
+      setTasks(data)
+    }
+
+    setLoading(false)
+  }
+
+  const renderActiveTasks = () => {
+    if (isLoading) {
+      return <>
+        <div className="m-auto grid justify-items-center items-center z-20 opacity-40">
+          <Loading />
+        </div>
+      </>
     } else {
-      push('/task')
+      const activeTasks = tasksFiltered.filter(t => !t.completed)
+      if (activeTasks.length > 0) {
+        return (
+          <div className="grid gap-2">
+            {activeTasks.map((el, i) => (
+              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} />
+            ))}
+          </div>
+        )
+      } else {
+        return <EmptyTask message="Task is empty." />
+      }
+    }
+  }
+
+  const renderCompletedTasks = () => {
+    if (isLoading) {
+      return <>
+        <div className="m-auto grid justify-items-center items-center z-20 opacity-40">
+          <Loading />
+        </div>
+      </>
+    } else {
+      const activeTasks = tasksFiltered.filter(t => t.completed)
+      if (activeTasks.length > 0) {
+        return (
+          <div className="grid gap-2">
+            {activeTasks.map((el, i) => (
+              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} />
+            ))}
+          </div>
+        )
+      } else {
+        return <EmptyTask message="No task completed yet." />
+      }
     }
   }
 
@@ -95,7 +190,7 @@ export default function Home() {
             </div>
             <button
               className="border rounded-md cursor-pointer bg-black text-white hover:bg-gray-700 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
-              onClick={() => navigateTask()}>
+              onClick={() => push(`/tasks/new`)}>
               + Create
             </button>
           </div>
@@ -103,44 +198,22 @@ export default function Home() {
           {/* Middle */}
           <div className="bg-white h-max w-6/12 pt-2 pb-8 px-4 rounded-sm">
             <h2 className="font-bold">My Task</h2>
-            <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 mt-2 cursor-pointer transition transform" onClick={() => navigateTask()}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 mt-2 cursor-pointer transition transform" onClick={() => push(`/tasks/new`)}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
               Add a task
             </div>
             <div className="mt-2"></div>
-            <div className="pl-1 flex items-center cursor-pointer hover:text-gray-700" onClick={() => navigateTask(placeholderId)}>
-              {/* Left */}
-              <div>
-                <Image
-                  className=""
-                  src="/circle.png"
-                  width={14}
-                  height={14}
-                  alt="task not completed icon"
-                />
-              </div>
-              {/* Right */}
-              <div className="pl-3">
-                Title
-              </div>
-            </div>
+            {renderActiveTasks()}
             <h2 className="font-bold mt-2">Completed</h2>
             <div className="mt-2"></div>
-            <Image
-              className="m-auto"
-              src="/empty.png"
-              width={84}
-              height={84}
-              alt="no task completed icon"
-            />
-            <p className="font-lg text-center mt-2 text-gray-800">No task completed yet.</p>
+            {renderCompletedTasks()}
           </div>
-
-          {/* Right */}
-          <div className="w-3/12"></div>
         </div>
+
+        {/* Right */}
+        <div className="w-3/12"></div>
       </main>
     </div>
   );

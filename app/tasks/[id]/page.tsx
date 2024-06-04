@@ -6,7 +6,8 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
 import "@/app/globals.css"
 import { Task } from '@/models/enum/Task';
-import { Loading } from '../components/loading';
+import { Loading } from '@/app/components/loading';
+import { showFormattedDate } from '@/app/utils/lib';
 
 const NoteNotFound = () => {
   return (
@@ -25,8 +26,8 @@ const NoteNotFound = () => {
 
 export default function Home({ params }: { params: { id: string } }) {
   // Task
-  const [id, setId] = useState("")
-  const [userId, setUserId] = useState("")
+  const [id, setId] = useState(-1)
+  const [userId, setUserId] = useState(-1)
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [completed, setCompleted] = useState(false)
@@ -54,7 +55,7 @@ export default function Home({ params }: { params: { id: string } }) {
         redirect("/login")
       } else {
         // TODO: check if user id is identical, else, show 404 page
-        setUserId(userId)
+        setUserId(parseInt(userId))
 
         if (isInitiated === false) {
           if (params.id === "new") {
@@ -105,17 +106,6 @@ export default function Home({ params }: { params: { id: string } }) {
     if (isContentEdited === false) {
       setContentEdited(true)
     }
-  }
-
-  const showFormattedDate = (date: any) => {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    }
-
-    return new Date(date).toLocaleDateString("en-EN", options)
   }
 
   const handleSubmit = async () => {
