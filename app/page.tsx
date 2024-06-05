@@ -97,7 +97,15 @@ export default function Home() {
   const refreshTasks = async () => {
     setLoading(true)
 
-    const response = await fetch(`/api/tasks`)
+    const response = await fetch(`/api/tasks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: id,
+      }),
+    })
     const { success, data } = await response.json()
     if (success) {
       setTasks(data)
