@@ -155,6 +155,11 @@ export default function Home() {
 
   return (
     <div className="bg-slate-200 min-h-screen" onClick={() => isModalSelected && setModalSelected(false)}>
+      {!isInititated && <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
+        <div className="absolute bg-white w-full h-full"></div>
+        <Loading />
+        <div className="absolute bg-white/40 w-full h-full"></div>
+      </div>}
       <main className="w-2/3 m-auto">
         <nav className="flex justify-between pt-4 pb-2 px-4">
           <div className="flex items-center cursor-pointer" onClick={() => push('/')}>
