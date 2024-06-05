@@ -1,4 +1,8 @@
 function calculateAge(date: Date) {
+  if (date.getTime() >= Date.now()) {
+    return 0
+  }
+
   var ageDifMs = Date.now() - date.getTime()
   var ageDate = new Date(ageDifMs)
   return Math.abs(ageDate.getUTCFullYear() - 1970)
