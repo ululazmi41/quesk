@@ -9,10 +9,15 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 class Database {
-  async emailExist(): Promise<boolean> {
-    // const { data, error } = await supabase.from(TABLE).select()
-    // return { data, error }
-    return false
+  async getUserById(id: number): Promise<{ data?: User, success: boolean }> {
+    const { data, error } = await supabase.from(TABLE_USER).select().eq('id', id)
+    if (error) {
+      throw error
+    }
+    if (data!.length > 0) {
+      return { data: data[0], success: true }
+    }
+    return { success: false }
   }
   
   async login(user: User): Promise<{ success: boolean, emailInvalid: boolean, passwordInvalid: boolean, userId: number }> {
@@ -68,6 +73,11 @@ class Database {
     return { data, error }
   }
 
+  async getTaskByID(userId: number) {
+    const { data, error } = await supabase.from(TABLE_TASK).select().eq('user_id', userId)
+    return { data, error }
+  }
+
   async getTask(id: number) {
     const { data, error } = await supabase.from(TABLE_TASK).select().eq("id", id)
     if (error) {
@@ -80,6 +90,9 @@ class Database {
   }
 
   async postTask(task: Task) {
+    const now = new Date(Date.now()).toISOString()
+    task.created_at = now
+    task.updated_at = now
     const error = await supabase.from(TABLE_TASK).insert(task)
     return error
   }

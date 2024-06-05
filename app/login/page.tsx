@@ -6,7 +6,8 @@ import "@/app/globals.css"
 
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loading } from '../tasks/components/loading'
+import { Loading } from '../components/loading'
+import Link from 'next/link'
 
 export default function Login() {
   const [isLoading, setLoading] = useState(false)
@@ -105,7 +106,7 @@ export default function Login() {
               Password
             </label>
             <input className={(passwordInvalid ? "border border-red-500 text-red-500 placeholder-red-500" : "text-gray-700") + " shadow appearance-none rounded w-full py-2 px-3 mb-3 leading-tight focus:outline-none focus:shadow-outline"} id="password" type="password" placeholder="********" onChange={passwordOnChange} />
-            <p>Don&apos;t have an account? <span onClick={() => push("/register")} className="cursor-pointer text-blue-600 hover:underline hover:decoration-blue-400 hover:text-blue-400 transition transform">register</span></p>
+            <p>Don&apos;t have an account? <Link href="/register" className="cursor-pointer text-blue-600 hover:underline hover:decoration-blue-400 hover:text-blue-400 transition transform">register</Link></p>
           </div>
           <button className="w-full bg-black hover:opacity-70 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transform transition duration-150" type="submit">
             Sign In

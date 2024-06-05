@@ -49,12 +49,21 @@ export default function Home() {
 
           // get tasks
           const asyncFunc = async () => {
-            const response = await fetch(`/api/tasks`)
-            const { success, data } = await response.json()
-            if (success) {
-              setTasks(data)
-              setTasksFiltered(data)
-            }
+            const response = await fetch(`/api/tasks`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_id: userId,
+              }),
+            })
+            const { data } = await response.json()
+            console.log(data)
+            
+            setTasks(data)
+            setTasksFiltered(data)
+            
             setLoading(false)
             setInititated(true)
           }
@@ -92,6 +101,7 @@ export default function Home() {
     const { success, data } = await response.json()
     if (success) {
       setTasks(data)
+      setTasksFiltered(data)
     }
 
     setLoading(false)
@@ -105,7 +115,7 @@ export default function Home() {
         </div>
       </>
     } else {
-      const activeTasks = tasksFiltered.filter(t => !t.completed)
+      const activeTasks = tasksFiltered.filter(t => !t.completed).sort((a, b) => new Date(b.updated_at!).getTime() - new Date(a.updated_at!).getTime())
       if (activeTasks.length > 0) {
         return (
           <div className="grid gap-2">
@@ -128,11 +138,11 @@ export default function Home() {
         </div>
       </>
     } else {
-      const activeTasks = tasksFiltered.filter(t => t.completed)
-      if (activeTasks.length > 0) {
+      const completedTasks = tasksFiltered.filter(t => t.completed).sort((a, b) => new Date(b.updated_at!).getTime() - new Date(a.updated_at!).getTime())
+      if (completedTasks.length > 0) {
         return (
           <div className="grid gap-2">
-            {activeTasks.map((el, i) => (
+            {completedTasks.map((el, i) => (
               <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} />
             ))}
           </div>
@@ -147,9 +157,9 @@ export default function Home() {
     <div className="bg-slate-200 min-h-screen" onClick={() => isModalSelected && setModalSelected(false)}>
       <main className="w-2/3 m-auto">
         <nav className="flex justify-between pt-4 pb-2 px-4">
-          <div className="flex items-center">
+          <div className="flex items-center cursor-pointer" onClick={() => push('/')}>
             <Image
-              className="m-auto cursor-pointer"
+              className="m-auto"
               onClick={() => push("/")}
               src="/notes.png"
               width={24}

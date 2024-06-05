@@ -73,7 +73,6 @@ export default function Home({ params }: { params: { id: string } }) {
                 setDescription(data["description"])
 
                 setInitiated(true)
-                console.log(params.id, id, userId, title, description, completed, updatedAt)
               } else {
                 setNotFound(true)
                 setInitiated(true)
@@ -117,8 +116,10 @@ export default function Home({ params }: { params: { id: string } }) {
       description,
       completed,
     }
-    await fetch('/api/tasks', {
-      method: params.id === 'new' ? 'POST': 'PUT',
+    const link = params.id === 'new' ? '/api/tasks/create' : '/api/tasks'
+    const method = params.id === 'new' ? 'POST': 'PUT'
+    await fetch(link, {
+      method: method,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -228,9 +229,9 @@ export default function Home({ params }: { params: { id: string } }) {
 
       <main className="w-2/3 m-auto">
         <nav className="flex justify-between pt-4 pb-2 px-4">
-          <div className="flex items-center">
+          <div className="flex items-center cursor-pointer" onClick={() => push('/')}>
             <Image
-              className="m-auto cursor-pointer"
+              className="m-auto"
               onClick={() => push("/")}
               src="/notes.png"
               width={24}

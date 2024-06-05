@@ -2,7 +2,7 @@ import { database } from "@/database/database"
 import { Task } from "@/models/enum/Task"
 import { NextResponse } from "next/server"
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
   const { data, error } = await database.getTasks()
   if (error) {
     throw error
@@ -15,20 +15,12 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const { title, user_id, description, completed } = await request.json()
-  const task: Task = {
-    title,
-    user_id,
-    description,
-    completed,
-  }
-  const { error } = await database.postTask(task)
+  const { user_id } = await request.json()
+  const { data, error } = await database.getTaskByID(user_id)
   if (error) {
     throw error
   }
-  const response = {
-    success: true,
-  }
+  const response = { data }
   return NextResponse.json(response)
 }
 
