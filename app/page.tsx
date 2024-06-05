@@ -59,7 +59,6 @@ export default function Home() {
               }),
             })
             const { data } = await response.json()
-            console.log(data)
             
             setTasks(data)
             setTasksFiltered(data)
@@ -106,11 +105,9 @@ export default function Home() {
         user_id: id,
       }),
     })
-    const { success, data } = await response.json()
-    if (success) {
-      setTasks(data)
-      setTasksFiltered(data)
-    }
+    const { data } = await response.json()
+    setTasks(data)
+    setTasksFiltered(data)
 
     setLoading(false)
   }
