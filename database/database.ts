@@ -90,6 +90,9 @@ class Database {
   }
 
   async postTask(task: Task) {
+    const now = new Date(Date.now()).toISOString()
+    task.created_at = now
+    task.updated_at = now
     const error = await supabase.from(TABLE_TASK).insert(task)
     return error
   }
