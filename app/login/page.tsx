@@ -51,10 +51,8 @@ export default function Login() {
         'Authorization': 'Basic ' + encoded
       },
     })
-    console.log(await response.json())
 
     const { token } = await response.json()
-
     if (token) {
       document.cookie = `token=${token};SameSite=None; Secure`
       setLoading(false)

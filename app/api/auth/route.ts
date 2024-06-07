@@ -1,9 +1,12 @@
 import fs from "fs"
+import path from "path"
 import crypto from 'crypto'
+
 import JWT from 'jsonwebtoken'
 import { User } from "@/models/enum/User"
 import { database } from "@/database/database"
 import { NextResponse } from "next/server"
+import { jwtKeyPath } from "@/const/jwt"
 
 export async function POST(request: Request): Promise<NextResponse> {
   const authorization = request.headers.get('authorization')?.split(' ')[1]!
@@ -22,11 +25,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const payload = { id, username }
-  const jwtKey = fs.readFileSync('app/api/keys/jwt.key')
-  const responseTesting = {
-    success: true,
-  }
-  return NextResponse.json(responseTesting)
+  const jwtKey = fs.readFileSync(jwtKeyPath)
   const jwtToken = JWT.sign(payload, jwtKey)
   const response = { token: jwtToken }
   return NextResponse.json(response)
