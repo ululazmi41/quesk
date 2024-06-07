@@ -14,7 +14,7 @@ enum ErrorMessage {
   empty = "",
   NoteNotFound = "Note not found",
   Unauthorized = "Unauthorized",
-} 
+}
 
 const NoteNotFound = ({ errorMessage }: { errorMessage: ErrorMessage }) => {
   return (

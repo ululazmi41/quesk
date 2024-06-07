@@ -9,13 +9,14 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 interface databaseInterface {
-  getUserById(id: number): Promise<{ data?: User, success: boolean }>
   login(user: User): Promise<{ success: boolean, id: number, username: string }>
   register(user: User): Promise<{ success: boolean, emailExist: boolean }>
+  
+  getUserById(id: number): Promise<{ data?: any, exist: boolean }>
   getTask(id: number): void
+  getTaskByID(userId: number): void
   getTasks(): Promise<{ data: any[] | null }>
   getTasksById(id: number): Promise<{ data: any[] | null }>
-  getTaskByID(userId: number): void
   postTask(task: Task): void
   putTask(task: Task): void
   deleteTask(id: number): void
@@ -40,15 +41,15 @@ class Database implements databaseInterface {
     return { data }
   }
 
-  async getUserById(id: number): Promise<{ data?: User, success: boolean }> {
-    const { data, error } = await supabase.from(TABLE_USER).select().eq('id', id)
+  async getUserById(id: number): Promise<{ data?: any, exist: boolean }> {
+    const { data, error, count } = await supabase.from(TABLE_USER).select().eq('id', id)
     if (error) {
       throw error
     }
     if (data!.length > 0) {
-      return { data: data[0], success: true }
+      return { data: data[0], exist: true }
     }
-    return { success: false }
+    return { exist: false }
   }
   
   async login(user: User): Promise<{ success: boolean, id: number, username: string }> {

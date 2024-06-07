@@ -28,20 +28,20 @@ function EmptyTask({ message }: { message: string }) {
 
 export default function Home() {
   const [token, setToken] = useState<string>()
-  const [username, setUsername] = useState<string>()
+  const [id, setId] = useState<string>()
   
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksFiltered, setTasksFiltered] = useState<Task[]>([])
   
   const [isLoading, setLoading] = useState(true)
-  const [isInititated, setInititated] = useState(false)
+  const [isInitiated, setInitiated] = useState(false)
   const [isModalSelected, setModalSelected] = useState(false)
 
   // nav
   const { push } = useRouter()
 
   useEffect(() => {
-    if (!isInititated) {
+    if (!isInitiated) {
       const { token, success } = getToken(document.cookie)
       if (!success) {
         redirect("/login")
@@ -49,7 +49,7 @@ export default function Home() {
 
       const payload = JWT.decode(token) as JWT.JwtPayload
       
-      setUsername(payload.username)
+      setId(payload.id)
       setToken(token)
 
       // get tasks
@@ -67,11 +67,11 @@ export default function Home() {
         setTasksFiltered(data)
         
         setLoading(false)
-        setInititated(true)
+        setInitiated(true)
       }
       asyncFunc()
     }
-  }, [isInititated])
+  }, [isInitiated])
 
   const handleLogout = () => {
     document.cookie = "userId=;SameSite=None; Secure"
@@ -82,7 +82,7 @@ export default function Home() {
     const searchElement: HTMLInputElement = document.querySelector('#search')!
     const search = searchElement.value
 
-    if (!isInititated) {
+    if (!isInitiated) {
       return
     }
 
@@ -160,7 +160,7 @@ export default function Home() {
 
   return (
     <div className="bg-slate-200 min-h-screen" onClick={() => isModalSelected && setModalSelected(false)}>
-      {!isInititated && <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
+      {!isInitiated && <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
         <div className="absolute bg-white w-full h-full"></div>
         <Loading />
         <div className="absolute bg-white/40 w-full h-full"></div>
@@ -188,7 +188,7 @@ export default function Home() {
               alt="user icon"
             />
             <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2"}>
-              <button onClick={() => push(`/${username}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
+              <button onClick={() => push(`/users/${id}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
               <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white transition transform">Logout</button>
             </div>
           </div>

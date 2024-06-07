@@ -20,18 +20,14 @@ export default function Login() {
     setLoading(true)
     e.preventDefault()
     
-    const emailElement: HTMLInputElement = document.querySelector('#email')!
-    const passwordElement: HTMLInputElement = document.querySelector('#password')!
+    const { email, password } = e.currentTarget
 
-    const email = emailElement.value
-    const password = passwordElement.value
-
-    if (email === "" || password === "") {
+    if (email.value === "" || password.value === "") {
       if (email === "") {
         setEmailInvalid(true)
       }
 
-      if (password === "") {
+      if (password.value === "") {
         setPasswordInvalid(true)
       }
 
@@ -40,8 +36,8 @@ export default function Login() {
     }
     
     const inJson = JSON.stringify({
-      email: email,
-      password: password
+      email: email.value,
+      password: password.value
     })
     const encoded = Buffer.from(inJson).toString('base64')
     const response = await fetch("/api/auth", {
