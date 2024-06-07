@@ -8,6 +8,8 @@ import "@/app/globals.css"
 import TaskComponent from './components/TaskComponent'
 import { Task } from '@/models/enum/Task'
 import { Loading } from './components/loading'
+import JWT from 'jsonwebtoken'
+import { getToken } from './utils/lib'
 
 function EmptyTask({ message }: { message: string }) {
   return (
@@ -25,9 +27,12 @@ function EmptyTask({ message }: { message: string }) {
 }
 
 export default function Home() {
-  const [id, setId] = useState("")
+  const [token, setToken] = useState<string>()
+  const [username, setUsername] = useState<string>()
+  
   const [tasks, setTasks] = useState<Task[]>([])
   const [tasksFiltered, setTasksFiltered] = useState<Task[]>([])
+  
   const [isLoading, setLoading] = useState(true)
   const [isInititated, setInititated] = useState(false)
   const [isModalSelected, setModalSelected] = useState(false)
@@ -37,38 +42,34 @@ export default function Home() {
 
   useEffect(() => {
     if (!isInititated) {
-      const cookie = document.cookie
-      if (cookie === "") {
+      const { token, success } = getToken(document.cookie)
+      if (!success) {
         redirect("/login")
-      } else {
-        const userId = cookie.split('=')[1]
-        if (userId === "") {
-          redirect("/login")
-        } else {
-          setId(userId)
-
-          // get tasks
-          const asyncFunc = async () => {
-            const response = await fetch(`/api/tasks`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                user_id: userId,
-              }),
-            })
-            const { data } = await response.json()
-            
-            setTasks(data)
-            setTasksFiltered(data)
-            
-            setLoading(false)
-            setInititated(true)
-          }
-          asyncFunc()
-        }
       }
+
+      const payload = JWT.decode(token) as JWT.JwtPayload
+      
+      setUsername(payload.username)
+      setToken(token)
+
+      // get tasks
+      const asyncFunc = async () => {
+        const response = await fetch(`/api/tasks`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+        })
+        const { data } = await response.json()
+        
+        setTasks(data)
+        setTasksFiltered(data)
+        
+        setLoading(false)
+        setInititated(true)
+      }
+      asyncFunc()
     }
   }, [isInititated])
 
@@ -97,15 +98,14 @@ export default function Home() {
     setLoading(true)
 
     const response = await fetch(`/api/tasks`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       },
-      body: JSON.stringify({
-        user_id: id,
-      }),
     })
     const { data } = await response.json()
+    
     setTasks(data)
     setTasksFiltered(data)
 
@@ -188,7 +188,7 @@ export default function Home() {
               alt="user icon"
             />
             <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2"}>
-              <button onClick={() => push(`/${id}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
+              <button onClick={() => push(`/${username}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
               <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white transition transform">Logout</button>
             </div>
           </div>

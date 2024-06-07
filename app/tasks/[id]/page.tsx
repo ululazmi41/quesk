@@ -1,5 +1,6 @@
 "use client"
 
+import JWT from 'jsonwebtoken';
 import Image from 'next/image';
 import { redirect, useRouter } from 'next/navigation'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
@@ -7,9 +8,15 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import "@/app/globals.css"
 import { Task } from '@/models/enum/Task';
 import { Loading } from '@/app/components/loading';
-import { showFormattedDate } from '@/app/utils/lib';
+import { getToken, showFormattedDate } from '@/app/utils/lib';
 
-const NoteNotFound = () => {
+enum ErrorMessage {
+  empty = "",
+  NoteNotFound = "Note not found",
+  Unauthorized = "Unauthorized",
+} 
+
+const NoteNotFound = ({ errorMessage }: { errorMessage: ErrorMessage }) => {
   return (
     <div className="bg-white h-max w-max pt-2 pb-8 px-16 rounded-lg m-auto">
       <Image
@@ -19,7 +26,7 @@ const NoteNotFound = () => {
         height={100}
         alt="note not found icon"
       />
-      <p className="text-center font-bold text-lg">Note not found</p>
+      <p className="text-center font-bold text-lg">{ errorMessage }</p>
     </div>
   )
 }
@@ -33,58 +40,69 @@ export default function Home({ params }: { params: { id: string } }) {
   const [completed, setCompleted] = useState(false)
   const [updatedAt, setUpdatedAt] = useState((new Date()).toISOString())
 
+  // error
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage>(ErrorMessage.empty)
+
+  const [isOk, setOk] = useState<boolean>()
   const [isLoading, setLoading] = useState(true)
-  const [isNotFound, setNotFound] = useState(false)
   const [isInitiated, setInitiated] = useState(false)
   const [isContentEdited, setContentEdited] = useState(false)
   const [isModalSelected, setModalSelected] = useState(false)
   const { push } = useRouter()
 
   useEffect(() => {
-    if (isInitiated && !isNotFound) {
+    if (isInitiated && isOk) {
       const descriptionWrapperElement: HTMLTextAreaElement = document.querySelector('#descriptionWrapper')!
       descriptionWrapperElement.dataset.clonedVal = description
     }
 
-    const cookie = document.cookie
-    if (cookie === "") {
+    const { token, success } = getToken(document.cookie)
+    if (!success) {
       redirect("/login")
-    } else {
-      const userId = cookie.split('=')[1]
-      if (userId === "") {
-        redirect("/login")
-      } else {
-        // TODO: check if user id is identical, else, show 404 page
-        setUserId(parseInt(userId))
+    }
+    
+    const payload = JWT.decode(token) as JWT.JwtPayload
+    
+    setUserId(parseInt(payload.id))
 
-        if (isInitiated === false) {
-          if (params.id === "new") {
+    if (!isInitiated) {
+      if (params.id === "new") {
+        setOk(true)
+        setLoading(false)
+        setInitiated(true)
+      } else {
+        const asyncFunc = async () => {
+          const response = await fetch(`/api/tasks/${parseInt(params.id)}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+          })
+          if (!response.ok) {
+            if (response.status === 403) {
+              setErrorMessage(ErrorMessage.Unauthorized)
+            } else if (response.status === 404) {
+              setErrorMessage(ErrorMessage.NoteNotFound)
+            }
+
+            setOk(false)
             setInitiated(true)
             setLoading(false)
-          } else {
-            const asyncFunc = async () => {
-              const response = await fetch(`/api/tasks/${parseInt(params.id)}`)
-              const { success, data } = await response.json()
-              if (success) {
-                setId(data["id"])
-                setTitle(data["title"])
-                setCompleted(data["completed"])
-                setUpdatedAt(data["updated_at"])
-                setDescription(data["description"])
-
-                setInitiated(true)
-              } else {
-                setNotFound(true)
-                setInitiated(true)
-              }
-              setLoading(false)
-            }
-            asyncFunc()
+            return
           }
+          
+          const { data } = await response.json()
+          setId(data["id"])
+          setTitle(data["title"])
+          setCompleted(data["completed"])
+          setUpdatedAt(data["updated_at"])
+          setDescription(data["description"])
+
+          setOk(true)
+          setInitiated(true)
+          setLoading(false)
         }
+        asyncFunc()
       }
     }
-  }, [isInitiated, isNotFound, params.id, id, userId, title, description, completed, updatedAt])
+  }, [isInitiated, isOk, params.id, id, userId, title, description, completed, updatedAt])
 
   const handleLogout = () => {
     document.cookie = "userId=;SameSite=None; Secure"
@@ -116,12 +134,14 @@ export default function Home({ params }: { params: { id: string } }) {
       description,
       completed,
     }
-    const link = params.id === 'new' ? '/api/tasks/create' : '/api/tasks'
+    const { token } = getToken(document.cookie)
     const method = params.id === 'new' ? 'POST': 'PUT'
-    await fetch(link, {
+    
+    await fetch('/api/tasks', {
       method: method,
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       },
       body: JSON.stringify(task),
     })
@@ -134,11 +154,7 @@ export default function Home({ params }: { params: { id: string } }) {
   }
 
   const wrapper = () => {
-    if (!isInitiated) {
-      return <></>
-    }
-
-    if (isNotFound) {
+    if (!isInitiated || !isOk) {
       return <></>
     }
 
@@ -220,9 +236,9 @@ export default function Home({ params }: { params: { id: string } }) {
         </div>
       </>}
 
-      {isInitiated && isNotFound && <>
+      {isInitiated && !isOk && <>
         <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
-          <NoteNotFound />
+          <NoteNotFound errorMessage={errorMessage ?? ""} />
         </div>
       </>
       }

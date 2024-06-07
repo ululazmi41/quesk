@@ -1,3 +1,18 @@
+function getToken(cookie: string): { token: string, success: boolean } {
+  if (cookie === "") {
+    return { token: '', success: false }
+  }
+  if (!cookie.includes('token=')) {
+    return { token: '', success: false }
+  }
+
+  const token = cookie
+        .split("; ")
+        .find((r) => r.startsWith("token="))
+        ?.split("=")[1]!
+  return { token, success: true }
+}
+
 function calculateAge(date: Date) {
   if (date.getTime() >= Date.now()) {
     return 0
@@ -75,4 +90,4 @@ const showFormattedDate = (date: any) => {
   return new Date(date).toLocaleDateString("en-EN", options)
 }
 
-export { isSameDay, timeLeft, showFormattedDate }
+export { getToken, isSameDay, timeLeft, showFormattedDate }

@@ -3,7 +3,7 @@
 import "@/app/globals.css"
 import Image from 'next/image';
 import { User } from '@/models/enum/User';
-import { Loading } from "../components/loading";
+import { Loading } from "../../components/loading";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from 'react';
 
@@ -19,10 +19,10 @@ export default function Page({ params }: { params: { id: string } }) {
     push("/login")
   }
 
+  // TODO:
   const user: User = {
-    username: "pokedex",
-    email: "hello@world.com",
-    password: "12345678",
+    username: "hello world",
+    email: "hello@world.com"
   }
 
   // useEffect(() => {
@@ -32,7 +32,7 @@ export default function Page({ params }: { params: { id: string } }) {
   //     if (success) {
   //       setUser(data)
   //     } else {
-  //       // TODO: 404
+  //       //
   //     }
   //     setLoading(false)
   //   }
@@ -98,7 +98,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <div>
                 <p className="font-semibold font-md">{user.username}</p>
                 <p className="font-semibold font-md">{user.email}</p>
-                <p className="font-semibold font-md">{user.password}</p>
+                <p className="font-semibold font-md">********</p>
               </div>
             </div>
           </div>

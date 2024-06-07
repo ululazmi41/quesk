@@ -19,9 +19,18 @@ Also, check out the `mobile app repository`
 - Mark task as completed.
 - Search tasks.
 
+## Highlight
+
+- Encoded email and password on authentication.
+- User password is hashed before being stored on the database.
+- Utilizes JSON Web Token for authorization.
+- Server wil return the error of `not found` and `unauthorized` when user is accessing certain tasks.
+- User won't be able to access unauthorized task through `\tasks\:id`.
+
 ## Technologies Used
 
 - Next.js
+- JSON Web Token
 - Typescript
 - React.js
 - Tailwind CSS

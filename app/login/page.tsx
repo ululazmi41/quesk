@@ -39,20 +39,23 @@ export default function Login() {
       return
     }
     
+    const inJson = JSON.stringify({
+      email: email,
+      password: password
+    })
+    const encoded = Buffer.from(inJson).toString('base64')
     const response = await fetch("/api/auth", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + encoded
       },
-      body: JSON.stringify({
-        email: email,
-        password: password
-      }),
     })
 
-    const { success, emailInvalid, passwordInvalid, userId } = await response.json()
-    if (success) {
-      document.cookie = `userId=${userId};SameSite=None; Secure`
+    const { token } = await response.json()
+
+    if (token) {
+      document.cookie = `token=${token};SameSite=None; Secure`
       setLoading(false)
       push("/")
     } else {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 
 import "@/app/globals.css"
 import { Task } from "@/models/enum/Task"
-import { isSameDay, timeLeft } from "../utils/lib"
+import { getToken, isSameDay, timeLeft } from "../utils/lib"
 import { Dispatch, SetStateAction } from "react"
 
 function TaskComponent({ refreshTasks, task, setLoading }: { refreshTasks: Function, task: Task, setLoading: Dispatch<SetStateAction<boolean>> }) {
@@ -19,10 +19,12 @@ function TaskComponent({ refreshTasks, task, setLoading }: { refreshTasks: Funct
   const changeCompletedTo = async (newValue: boolean) => {
     setLoading(true)
     task.completed = newValue
+    const { token } = getToken(document.cookie)
     await fetch('/api/tasks', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       },
       body: JSON.stringify(task),
     })
@@ -44,10 +46,12 @@ function TaskComponent({ refreshTasks, task, setLoading }: { refreshTasks: Funct
 
   const handleDelete = async () => {
     setLoading(true)
+    const { token } = getToken(document.cookie)
     await fetch('/api/tasks', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
       },
       body: JSON.stringify({ id: task.id }),
     })

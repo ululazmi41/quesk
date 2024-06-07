@@ -47,15 +47,17 @@ export default function Login() {
       return
     }
     
+    const inJson = JSON.stringify({
+      email: email,
+      password: password
+    })
+    const encoded = Buffer.from(inJson).toString('base64')
     const response = await fetch("/api/register", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + encoded
       },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-      }),
     })
 
     const { success, emailExist } = await response.json()

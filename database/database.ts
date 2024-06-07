@@ -8,7 +8,38 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-class Database {
+interface databaseInterface {
+  getUserById(id: number): Promise<{ data?: User, success: boolean }>
+  login(user: User): Promise<{ success: boolean, id: number, username: string }>
+  register(user: User): Promise<{ success: boolean, emailExist: boolean }>
+  getTask(id: number): void
+  getTasks(): Promise<{ data: any[] | null }>
+  getTasksById(id: number): Promise<{ data: any[] | null }>
+  getTaskByID(userId: number): void
+  postTask(task: Task): void
+  putTask(task: Task): void
+  deleteTask(id: number): void
+
+  // admin
+  getUsers(): Promise<{ data: any[] | null}>
+  putUser(id: number, user: User): void
+}
+
+class Database implements databaseInterface {
+  async putUser(id: number, user: User) {
+    await supabase.from(TABLE_USER).update(user).eq('id', id)
+  }
+
+  async getUsers(): Promise<{ data: any[] | null }> {
+    const { data } = await supabase.from(TABLE_USER).select()
+    return { data }
+  }
+
+  async getTasksById(id: number): Promise<{ data: any[] | null }> {
+    const { data } = await supabase.from(TABLE_TASK).select().eq('user_id', id)
+    return { data }
+  }
+
   async getUserById(id: number): Promise<{ data?: User, success: boolean }> {
     const { data, error } = await supabase.from(TABLE_USER).select().eq('id', id)
     if (error) {
@@ -20,30 +51,27 @@ class Database {
     return { success: false }
   }
   
-  async login(user: User): Promise<{ success: boolean, emailInvalid: boolean, passwordInvalid: boolean, userId: number }> {
+  async login(user: User): Promise<{ success: boolean, id: number, username: string }> {
     const { data } = await supabase.from(TABLE_USER).select().eq("email", user.email)
     if (data?.length === 0) {
       return {
+        id: -1,
         success: false,
-        emailInvalid: true,
-        passwordInvalid: false,
-        userId: 0
+        username: '',
       }
     }
     if (data![0]["password"] !== user.password) {
       return {
+        id: -1,
         success: false,
-        emailInvalid: false,
-        passwordInvalid: true,
-        userId: 0
+        username: '',
       }
     }
     
     return {
+      id: parseInt(data![0]["id"]),
       success: true,
-      emailInvalid: false,
-      passwordInvalid: false,
-      userId: data![0]["id"]
+      username: data![0]["username"],
     }
   }
   
@@ -68,17 +96,23 @@ class Database {
     }
   }
 
-  async getTasks() {
+  async getTasks(): Promise<{ data: any[] | null }> {
     const { data, error } = await supabase.from(TABLE_TASK).select()
-    return { data, error }
+    if (error) {
+      throw error
+    }
+    return { data }
   }
 
-  async getTaskByID(userId: number) {
+  async getTaskByID(userId: number): Promise<{ data: any[] | null }> {
     const { data, error } = await supabase.from(TABLE_TASK).select().eq('user_id', userId)
-    return { data, error }
+    if (error) {
+      throw error
+    }
+    return { data }
   }
 
-  async getTask(id: number) {
+  async getTask(id: number): Promise<{ exist: boolean, data: any }> {
     const { data, error } = await supabase.from(TABLE_TASK).select().eq("id", id)
     if (error) {
       throw error
@@ -93,19 +127,25 @@ class Database {
     const now = new Date(Date.now()).toISOString()
     task.created_at = now
     task.updated_at = now
-    const error = await supabase.from(TABLE_TASK).insert(task)
-    return error
+    const { error } = await supabase.from(TABLE_TASK).insert(task)
+    if (error) {
+      throw error
+    }
   }
 
   async putTask(task: Task) {
     task.updated_at = (new Date(Date.now())).toISOString()
     const { error } = await supabase.from(TABLE_TASK).update(task).eq('id', task.id)
-    return error
+    if (error) {
+      throw error
+    }
   }
 
   async deleteTask(id: number) {
     const { error } = await supabase.from(TABLE_TASK).delete().eq('id', id)
-    return error
+    if (error) {
+      throw error
+    }
   }
 }
 
