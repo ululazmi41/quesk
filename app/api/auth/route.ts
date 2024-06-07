@@ -23,6 +23,10 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const payload = { id, username }
   const jwtKey = fs.readFileSync('app/api/keys/jwt.key')
+  const responseTesting = {
+    success: true,
+  }
+  return NextResponse.json(responseTesting)
   const jwtToken = JWT.sign(payload, jwtKey)
   const response = { token: jwtToken }
   return NextResponse.json(response)
