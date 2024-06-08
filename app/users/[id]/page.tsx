@@ -467,8 +467,7 @@ export default function Page({ params }: { params: { id: string } }) {
         />
         <div className="grid grid-cols-2 gap-4 mt-8 mb-4 m-auto w-max">
           <p className="font-sans font-md mb-2">Username</p>
-          {/* TODO: temporary fix; username must not be empty */}
-          <p className="font-semibold text-md mb-2">{user.username === "" || !user.username ? "\u00A0" : user.username}</p>
+          <p className="font-semibold text-md mb-2">{user.username}</p>
           
           <p className="font-sans font-md mb-2">Email Address</p>
           <p className="font-semibold text-md mb-2">{user.email}</p>
@@ -527,7 +526,7 @@ export default function Page({ params }: { params: { id: string } }) {
               height={28}
               alt="user icon"
             />
-            <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2"}>
+            <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
               <button className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
               <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white transition transform">Logout</button>
             </div>
