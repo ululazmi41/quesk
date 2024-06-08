@@ -8,24 +8,27 @@
 
 This repository is created as a learning project that utilizes Next.js for both the frontend and backend development, TailwindCSS to style the web interface, and Supabase as a database that stores user data and tasks.
 
-Visit website: `link`
+Visit website: [https://quesk.vercel.app/](https://quesk.vercel.app/)
 
 Also, check out the `mobile app repository`
 
 ## Features
 
 - User authentication.
+- Update user data.
 - Create/update/delete task.
 - Mark task as completed.
 - Search tasks.
 
 ## Highlight
 
-- Encoded email and password on authentication.
-- User password is hashed before being stored on the database.
-- Utilizes JSON Web Token for authorization.
-- Server wil return the error of `not found` and `unauthorized` when user is accessing certain tasks.
-- User won't be able to access unauthorized task through `\tasks\:id`.
+- Encoded email and password on `authentication`.
+- Utilizes JSON Web Token for `authorization`.
+- Encoded old password and new password when trying to `change password`.
+- Password is `hashed` before being stored on the database.
+- Server wil return `conflict` with 409 status code when attempting to edit record with existing data.
+- Server wil return `not found` with 404 status code when attempting to access nonexistent record.
+- Server wil return `unauthorized` with 401 status code when attempting to access unauthorized record.
 
 ## Technologies Used
 

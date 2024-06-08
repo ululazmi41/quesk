@@ -76,7 +76,9 @@ export default function Home({ params }: { params: { id: string } }) {
             headers: { 'Authorization': 'Bearer ' + token }
           })
           if (!response.ok) {
-            if (response.status === 403) {
+            if (response.status === 401) {
+              redirect('/login')
+            } else if (response.status === 403) {
               setErrorMessage(ErrorMessage.Unauthorized)
             } else if (response.status === 404) {
               setErrorMessage(ErrorMessage.NoteNotFound)
@@ -105,7 +107,7 @@ export default function Home({ params }: { params: { id: string } }) {
   }, [isInitiated, isOk, params.id, id, userId, title, description, completed, updatedAt])
 
   const handleLogout = () => {
-    document.cookie = "userId=;SameSite=None; Secure"
+    document.cookie = "token=;SameSite=None; Secure"
     push("/login")
   }
 

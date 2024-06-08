@@ -5,7 +5,7 @@ import Image from 'next/image'
 import "@/app/globals.css"
 
 import { FormEvent, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { Loading } from '../components/loading'
 import Link from 'next/link'
 
@@ -47,6 +47,14 @@ export default function Login() {
         'Authorization': 'Basic ' + encoded
       },
     })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        redirect('/login')
+      } else {
+        console.error('Unhandler response status code: ' + response.status)
+      }
+    }
 
     const { token } = await response.json()
     if (token) {

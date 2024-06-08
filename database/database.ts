@@ -12,7 +12,11 @@ interface databaseInterface {
   login(user: User): Promise<{ success: boolean, id: number, username: string }>
   register(user: User): Promise<{ success: boolean, emailExist: boolean }>
   
+  getUsers(): Promise<{ data: any[] | null}>
   getUserById(id: number): Promise<{ data?: any, exist: boolean }>
+  getUsersByColumnData(id: number, columnName: string, columnData: string): Promise<{ data?: any[] | null }>
+  putUser(id: number, user: User): void
+  
   getTask(id: number): void
   getTaskByID(userId: number): void
   getTasks(): Promise<{ data: any[] | null }>
@@ -20,13 +24,14 @@ interface databaseInterface {
   postTask(task: Task): void
   putTask(task: Task): void
   deleteTask(id: number): void
-
-  // admin
-  getUsers(): Promise<{ data: any[] | null}>
-  putUser(id: number, user: User): void
 }
 
 class Database implements databaseInterface {
+  async getUsersByColumnData(id: number, columnName: string, columnData: string): Promise<{ data?: any[] | null }> {
+    const { data } = await supabase.from(TABLE_USER).select().eq(columnName, columnData).neq('id', id)
+    return { data }
+  }
+  
   async putUser(id: number, user: User) {
     await supabase.from(TABLE_USER).update(user).eq('id', id)
   }

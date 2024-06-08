@@ -61,6 +61,15 @@ export default function Home() {
             'Authorization': 'Bearer ' + token
           },
         })
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            redirect('/login')
+          } else {
+            console.error(`Unhandled response status code: ` + response.status)
+          }
+        }
+
         const { data } = await response.json()
         
         setTasks(data)
@@ -74,7 +83,7 @@ export default function Home() {
   }, [isInitiated])
 
   const handleLogout = () => {
-    document.cookie = "userId=;SameSite=None; Secure"
+    document.cookie = "token=;SameSite=None; Secure"
     push("/login")
   }
 

@@ -6,7 +6,7 @@ import "@/app/globals.css"
 import "@/app/style/loading.css"
 
 import { FormEvent, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import { Loading } from '../components/loading'
 
 export default function Login() {
@@ -52,6 +52,14 @@ export default function Login() {
         'Authorization': 'Basic ' + encoded
       },
     })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        redirect('/login')
+      } else {
+        console.error('Unhandler response status code: ' + response.status)
+      }
+    }
 
     const { success, emailExist } = await response.json()
     if (success) {
