@@ -5,7 +5,7 @@ import Image from 'next/image'
 import "@/app/globals.css"
 import "@/app/style/loading.css"
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { redirect, useRouter } from 'next/navigation'
 import { Loading } from '../components/loading'
 
@@ -17,6 +17,20 @@ export default function Login() {
   const [confirmPasswordInvalid, setConfirmPasswordInvalid] = useState(false)
 
   const { push } = useRouter()
+  
+  // Darkmode
+  const [isDarkmodeInitiated, seDarkmodeInitiated] = useState(false)
+  useEffect(() => {
+    if (isDarkmodeInitiated) {
+      return
+    }
+    
+    const isDarkmode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    if (isDarkmode) {
+      document.documentElement.classList.add('dark')
+    }
+    seDarkmodeInitiated(true)
+  }, [isDarkmodeInitiated])
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     setLoading(true)
@@ -97,10 +111,10 @@ export default function Login() {
   }
 
   return (
-    <main className="grid bg-slate-200 min-h-screen">
+    <main className="grid bg-slate-200 dark:bg-gray-700 min-h-screen">
       {isLoading && <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
         <Loading />
-        <div className="absolute bg-white opacity-40 w-full h-full z-10"></div>
+        <div className="absolute bg-white dark:bg-gray-400 opacity-40 w-full h-full z-10"></div>
       </div>}
       <div className="m-auto sm:w-96">
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>

@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { database } from "@/database/database"
+import { database } from "@/data/database"
 import { User } from "@/models/enum/User"
 import { NextResponse } from "next/server"
 

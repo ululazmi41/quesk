@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { database } from "@/database/database";
+import { database } from "@/data/database";
 
 export async function GET(): Promise<NextResponse> {
   const { data } = await database.getUsers()

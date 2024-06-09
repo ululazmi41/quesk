@@ -1,4 +1,4 @@
-import { database } from "@/database/database"
+import { database } from "@/data/database"
 import { Task } from "@/models/enum/Task"
 import { NextResponse } from "next/server"
 import { isTokenValid } from "../helpers/jwt"

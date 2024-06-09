@@ -4,7 +4,7 @@ import crypto from 'crypto'
 
 import JWT from 'jsonwebtoken'
 import { User } from "@/models/enum/User"
-import { database } from "@/database/database"
+import { database } from "@/data/database"
 import { NextResponse } from "next/server"
 import { jwtKeyPath } from "@/const/jwt"
 

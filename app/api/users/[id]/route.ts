@@ -1,4 +1,4 @@
-import { database } from "@/database/database"
+import { database } from "@/data/database"
 import { NextResponse } from "next/server"
 import { isTokenValid } from "../../helpers/jwt"
 
@@ -8,6 +8,10 @@ export async function GET(
   const { isValid, payload } = isTokenValid(request)
   if (!isValid) {
     return NextResponse.json({}, { status: 401 })
+  }
+  const regexIsOnlyNumber = /^[0-9]+$/g
+  if (!regexIsOnlyNumber.test(params.id)) {
+    return NextResponse.json({}, { status: 400 })
   }
   const { data, exist } = await database.getUserById(parseInt(params.id))
   if (!exist) {

@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import { NextResponse } from "next/server"
 import { isTokenValid } from "../../helpers/jwt"
-import { database } from '@/database/database'
+import { database } from '@/data/database'
 import { User } from '@/models/enum/User'
 
 export async function PUT(request: Request): Promise<NextResponse> {
