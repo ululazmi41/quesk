@@ -8,7 +8,7 @@ import { Task } from "@/models/enum/Task"
 import { getToken, isSameDay, timeLeft } from "../utils/lib"
 import { Dispatch, SetStateAction } from "react"
 
-function TaskComponent({ refreshTasks, task, setLoading }: { refreshTasks: Function, task: Task, setLoading: Dispatch<SetStateAction<boolean>> }) {
+function TaskComponent({ locale, refreshTasks, task, setLoading }: { locale: string, refreshTasks: Function, task: Task, setLoading: Dispatch<SetStateAction<boolean>> }) {
   const { push } = useRouter()
   const isToday = isSameDay(task.updated_at!)
 
@@ -87,7 +87,7 @@ function TaskComponent({ refreshTasks, task, setLoading }: { refreshTasks: Funct
 
         {/* Row 2: Last updated */}
         <div></div>
-        <div className={"w-max text-xs px-2 py-1 rounded-lg text-white border " + (handleClassName())}>{timeLeft(task.updated_at as string)}</div>
+        <div className={"w-max text-xs px-2 py-1 rounded-lg text-white border " + (handleClassName())}>{timeLeft(task.updated_at as string, locale)}</div>
       </div>
 
       {/* Right */}

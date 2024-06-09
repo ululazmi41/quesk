@@ -1,5 +1,5 @@
 function getToken(cookie: string): { token: string, success: boolean } {
-  if (cookie === "") {
+  if (cookie === '') {
     return { token: '', success: false }
   }
   if (!cookie.includes('token=')) {
@@ -7,9 +7,9 @@ function getToken(cookie: string): { token: string, success: boolean } {
   }
 
   const token = cookie
-        .split("; ")
-        .find((r) => r.startsWith("token="))
-        ?.split("=")[1]!
+    .split('; ')
+    .find((r) => r.startsWith('token='))
+    ?.split('=')[1]!
   return { token, success: true }
 }
 
@@ -33,61 +33,102 @@ function monthDiff(d1: Date) {
 
 const isSameDay = (date: string) => {
   const updatedAt = new Date(date)
-  
-  const diffTime =  Math.abs(Date.now() - updatedAt.getTime())
+
+  const diffTime = Math.abs(Date.now() - updatedAt.getTime())
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
 
   return diffDays === 0
 }
 
-const timeLeft = (date: string) => {
+const timeLeft = (date: string, locale: string) => {
   const updatedAt = new Date(date)
   const diffYears = calculateAge(updatedAt)
-  
+
+  if (locale !== 'en' && locale !== 'id') {
+      console.log(`lib: unhandled locale: ${locale}, locale set to 'en'`)
+      locale = 'en'
+  }
+
   if (diffYears === 1) {
-    return "last year"
+    if (locale === 'en') {
+      return 'last year'
+    } else if (locale === 'id') {
+      return 'setahun lalu'
+    }
   } else if (diffYears > 1) {
-    return `${diffYears} years ago`
-  }
-
-  const diffMonths = monthDiff(updatedAt) 
-  if (diffMonths === 1) {
-    return `last month`
-  } else if (diffMonths > 1) {
-    return `${diffMonths} months ago`
-  }
-
-  const diffTime =  Math.abs(Date.now() - updatedAt.getTime())
-  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
-
-  if (diffDays === 0) {
-    return "today"
-  } else if (diffDays === 1) {
-    return "yesterday"
-  } else if (diffDays > 1 && diffDays < 7) {
-    return `${diffDays} days ago`
-  } else if (diffDays >= 7) {
-    const weekDiff = Math.floor(diffDays / 7)
-    if (weekDiff === 1) {
-      return `last week`
-    } else if (weekDiff < 5) {
-      return `${weekDiff} weeks ago`
+    if (locale === 'en') {
+      return `${diffYears} years ago`
+    } else if (locale === 'id') {
+      return `${diffYears} tahun lalu`
     }
   }
 
-  console.log("unintended dunreachable code")
-  return "server error"
-}
-
-const showFormattedDate = (date: any) => {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric"
+  const diffMonths = monthDiff(updatedAt)
+  if (diffMonths === 1) {
+    if (locale === 'en') {
+      return 'last month'
+    } else if (locale === 'id') {
+      return 'sebulan lalu'
+    }
+  } else if (diffMonths > 1) {
+    if (locale === 'en') {
+      return `${diffMonths} months ago`
+    } else if (locale === 'id') {
+      return `${diffMonths} bulan lalu`
+    }
   }
 
-  return new Date(date).toLocaleDateString("en-EN", options)
+  const diffTime = Math.abs(Date.now() - updatedAt.getTime())
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) {
+    if (locale === 'en') {
+      return 'today'
+    } else if (locale === 'id') {
+      return `hari ini`
+    }
+  } else if (diffDays === 1) {
+    if (locale === 'en') {
+      return 'yesterday'
+    } else if (locale === 'id') {
+      return `kemarin`
+    }
+  } else if (diffDays > 1 && diffDays < 7) {
+    if (locale === 'en') {
+      return `${diffDays} days ago`
+    } else if (locale === 'id') {
+      return `${diffDays} hari lalu`
+    }
+  } else if (diffDays >= 7) {
+    const weekDiff = Math.floor(diffDays / 7)
+    if (weekDiff === 1) {
+      if (locale === 'en') {
+        return `last week`
+      } else if (locale === 'id') {
+        return `seminggu lalu`
+      }
+    } else if (weekDiff < 5) {
+      if (locale === 'en') {
+        return `${weekDiff} weeks ago`
+      } else if (locale === 'id') {
+        return `${weekDiff} minggu lalu`
+      }
+    }
+  }
+
+  console.error('lib: Unintended unreachable code')
+  return 'server error'
+}
+
+const showFormattedDate = (date: any, locale: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }
+
+  return new Date(date).toLocaleDateString(locale === 'en' ? 'en-EN' : 'id-ID', options)
 }
 
 export { getToken, isSameDay, timeLeft, showFormattedDate }

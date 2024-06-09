@@ -1,9 +1,9 @@
 import "@/app/style/loading.css"
 
-const Loading = () => {
+const LoadingComponent = () => {
   return (
     <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
   )
 }
 
-export { Loading }
+export { LoadingComponent }

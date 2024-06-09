@@ -19,6 +19,8 @@ Also, check out the `mobile app repository`
 - Create/update/delete task.
 - Mark task as completed.
 - Search tasks.
+- Available theme: light, dark.
+- Multilingual support: English, Indonesia.
 
 ## Highlight
 

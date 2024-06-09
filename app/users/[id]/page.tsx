@@ -3,12 +3,14 @@
 import "@/app/globals.css"
 import Image from 'next/image';
 import { User } from '@/models/enum/User';
-import { Loading } from "../../components/loading";
+import { LoadingComponent } from "../../components/LoadingComponent";
 import { redirect, useRouter } from "next/navigation";
-import { Dispatch, FormEvent, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useEffect, useLayoutEffect, useState } from 'react';
 import { getToken } from "@/app/utils/lib";
 import { appLocalStorage } from "@/data/locaStorage";
-import DarkThemeToggler from "@/app/components/DarkModeToggler";
+import DarkThemeToggler from "@/app/components/DarkModeTogglerComponent";
+import LocaleTogglerComponent from "@/app/components/LanguageTogglerComponent";
+import { intl } from "@/i18n/intl";
 
 enum ErrorMessage {
   Empty = "",
@@ -34,9 +36,9 @@ const ErrorComponent = ({ errorMessage }: { errorMessage: ErrorMessage }) => {
 
 const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { username: string, email: string, setModalOpened: Dispatch<SetStateAction<boolean>>, refresh: Function }) => {
   enum EmailError {
-    Empty = "",
-    Taken = "Email taken",
-    Invalid = "Email invalid"
+    Empty,
+    Taken,
+    Invalid,
   }
 
   const [isLoading, setLoading] = useState(false)
@@ -48,7 +50,7 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
     setLoading(true)
     e.preventDefault()
 
-    const regexEmailValidator = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/gm // TODO: email validation on register and login
+    const regexEmailValidator = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/gm
     const { username: usernameElement, email: emailElement } = e.currentTarget
 
     if (usernameElement.value === username && emailElement.value === email) {
@@ -135,6 +137,16 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
     setModalOpened(false)
   }
 
+  const renderEmailError = () => {
+    if (emailError === EmailError.Empty) {
+      return ""
+    } else if (emailError === EmailError.Taken) {
+      return intl.lib.profile.emailTaken
+    } else if (emailError === EmailError.Invalid) {
+      return intl.lib.profile.emailInvalid
+    }
+  }
+
   return (
     <div className="absolute grid w-screen h-screen z-10">
       <form onSubmit={handleSubmit} className="z-20 m-auto relative bg-white dark:bg-gray-700 px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
@@ -157,7 +169,7 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
                   <div className="md:w-1/3"></div>
                   <div className="md:w-2/3">
                     <p className={(isUsernameInvalid ? "block" : "hidden") + " text-red-400 dark:text-red-500 text-sm font-semibold"}>
-                      Username taken
+                      {intl.lib.profile.usernameTaken}
                     </p>
                   </div>
                 </div>
@@ -177,7 +189,7 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
                   <div className="md:w-1/3"></div>
                   <div className="md:w-2/3">
                     <p className={(isEmailInvalid ? "block" : "hidden") + " text-red-400 dark:text-red-500 text-sm  font-semibold"}>
-                      {emailError}
+                      {renderEmailError()}
                     </p>
                   </div>
                 </div>
@@ -186,10 +198,10 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
                 <div></div>
                 <div className="flex gap-2">
                   <button disabled={isLoading} onClick={() => setModalOpened(false)} className={(isLoading ? "" : "hover:bg-gray-600/60") + " bg-gray-600 dark:bg-gray-800 hover:bg-gray-800 dark:hover:bg-gray-600 shadow focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded transition transform"} type="button">
-                    Cancel
+                    {intl.lib.profile.cancel}
                   </button>
                   <button disabled={isLoading || (isEmailInvalid || isUsernameInvalid)} className={(isLoading ? "bg-black/40" : "bg-black dark:bg-black/80 hover:bg-black/50 dark:hover:bg-black/50") + " disabled:bg-black/40 shadow focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded cursor-pointer disabled:cursor-default transition transform"} type="submit">
-                    Submit
+                    {intl.lib.profile.submit}
                   </button>
                 </div>
               </div>
@@ -346,7 +358,7 @@ const PasswordDialogComponent = ({ setModalOpened, refresh }: { setModalOpened: 
               <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/3">
                   <label className="block text-gray-500 dark:text-gray-200 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="username">
-                    Old
+                    {intl.lib.profile.old}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -358,7 +370,7 @@ const PasswordDialogComponent = ({ setModalOpened, refresh }: { setModalOpened: 
               <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/3">
                   <label className="block text-gray-500 dark:text-gray-200 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="username">
-                    New
+                    {intl.lib.profile.new}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -370,7 +382,7 @@ const PasswordDialogComponent = ({ setModalOpened, refresh }: { setModalOpened: 
               <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/3">
                   <label className="block text-gray-500 dark:text-gray-200 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="username">
-                    Confirm
+                    {intl.lib.profile.confirm}
                   </label>
                 </div>
                 <div className="md:w-2/3">
@@ -382,10 +394,10 @@ const PasswordDialogComponent = ({ setModalOpened, refresh }: { setModalOpened: 
                 <div></div>
                 <div className="flex gap-2">
                   <button disabled={isLoading} onClick={() => setModalOpened(false)} className={(isLoading ? "" : "hover:bg-gray-600/60") + " bg-gray-600 shadow focus:shadow-outline focus:outline-none text-white font-bnew py-2 px-4 rounded"} type="button">
-                    Cancel
+                    {intl.lib.profile.cancel}
                   </button>
                   <button disabled={isLoading || (isOldPasswordInvalid || isNewPasswordInvalid || isConfirmPasswordInvalid)} className={(isLoading ? "bg-black/40" : "bg-black hover:bg-black/60") + " disabled:bg-black/40 shadow focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded cursor-pointer disabled:cursor-default"} type="submit">
-                    Submit
+                    {intl.lib.profile.submit}
                   </button>
                 </div>
               </div>
@@ -413,9 +425,21 @@ export default function Page({ params }: { params: { id: string } }) {
   // theme
   const [isDarkmode, setDarkmode] = useState(false)
 
-  const handleLogout = () => {
-    document.cookie = "token=;SameSite=None; Secure"
-    push("/login")
+  // locale
+  const [locale, setLocale] = useState("en")
+
+  useLayoutEffect(() => {
+    const localLocale = appLocalStorage.getLocale()
+    setLocale(localLocale)
+    intl.changeLocale(localLocale)
+    refreshTheme()
+  }, [])
+
+  const toggleLocale = () => {
+    const toggled = locale === "en" ? "id" : "en"
+    intl.changeLocale(toggled)
+    appLocalStorage.changeLocale(toggled)
+    setLocale(toggled)
   }
 
   useEffect(() => {
@@ -478,6 +502,11 @@ export default function Page({ params }: { params: { id: string } }) {
     setInitiated(false)
   }
 
+  const handleLogout = () => {
+    document.cookie = "token=;SameSite=None; Secure"
+    push("/login")
+  }
+
   const renderBody = () => {
     if (!isInitiated || error !== ErrorMessage.Empty) {
       return <></>
@@ -493,22 +522,22 @@ export default function Page({ params }: { params: { id: string } }) {
           height={58}
           alt="user icon"
         />
-        <div className="grid grid-cols-2 gap-4 mt-8 mb-4 m-auto w-max dark:text-white/70">
+        <div className="grid grid-cols-[max-content_1fr] gap-4 mt-8 mb-4 m-auto w-max dark:text-white/70">
           <p className="font-sans font-md mb-2">Username</p>
           <p className="font-semibold text-md mb-2">{user.username}</p>
           
-          <p className="font-sans font-md mb-2">Email Address</p>
+          <p className="font-sans font-md mb-2">Email</p>
           <p className="font-semibold text-md mb-2">{user.email}</p>
           
           <p className="font-sans font-md">Password</p>
           <div>
             <p className="font-semibold text-md mb-0">********</p>
-            <a onClick={() => setPasswordOpened(true)} className="text-sm text-blue-700 dark:text-white hover:text-blue-600 dark:hover:text-white hover:underline decoration-blue-700 hover:decoration-white cursor-pointer transition transform">change password</a>
+            <a onClick={() => setPasswordOpened(true)} className="text-sm text-blue-700 dark:text-white hover:text-blue-600 dark:hover:text-white hover:underline decoration-blue-700 hover:decoration-white cursor-pointer transition transform">{intl.lib.profile.changePassword}</a>
           </div>
         </div>
         <div className="flex justify-between w-5/6 m-auto">
           <div></div>
-          <button onClick={() => setEditOpened(true)} className="mt-4 bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-black/70 hover:bg-black/40 shadow focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded transition transform">edit</button>
+          <button onClick={() => setEditOpened(true)} className="mt-4 w-20 bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-black/70 hover:bg-black/40 shadow focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded transition transform">{intl.lib.profile.edit}</button>
         </div>
       </div>
     </>)
@@ -519,7 +548,7 @@ export default function Page({ params }: { params: { id: string } }) {
       {/* Loading */}
       {!isInitiated && <>
         <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
-          <Loading />
+          <LoadingComponent />
           <div className="absolute bg-white dark:bg-white/70 opacity-40 w-full h-full z-10"></div>
         </div>
       </>}
@@ -549,7 +578,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
           {/* Right */}
           <div className="flex gap-3">
-            <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            <LocaleTogglerComponent locale={locale} onClick={toggleLocale} />
+            <div className="ml-1">
+              <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            </div>
             <div className="relative">
               <Image
                 className="m-auto cursor-pointer"
@@ -560,8 +592,8 @@ export default function Page({ params }: { params: { id: string } }) {
                 alt="user icon"
               />
               <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
-                <button className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
-                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white transition transform">Logout</button>
+                <button className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
+                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>
             </div>
           </div>

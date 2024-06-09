@@ -1,26 +1,71 @@
 "use client"
 
-import JWT from 'jsonwebtoken';
-import Image from 'next/image';
+// Next.js and React
+import Image from 'next/image'
 import { redirect, useRouter } from 'next/navigation'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useLayoutEffect, useState } from 'react'
 
+// Stylesheet
 import "@/app/globals.css"
-import { Task } from '@/models/enum/Task';
-import { Loading } from '@/app/components/loading';
-import { getToken, showFormattedDate } from '@/app/utils/lib';
-import { appLocalStorage } from '@/data/locaStorage';
-import DarkThemeToggler from '@/app/components/DarkModeToggler';
 
-enum ErrorMessage {
-  empty = "",
-  NoteNotFound = "Note not found",
-  Unauthorized = "Unauthorized",
-  BadRequest = "Bad Request",
-  ServerError = "Internal Server Error",
+// Third Party
+import JWT from 'jsonwebtoken'
+
+// Utils
+import { getToken, showFormattedDate } from '@/app/utils/lib'
+
+// Enums
+import { Task } from '@/models/enum/Task'
+
+// Components
+import { LoadingComponent } from '@/app/components/LoadingComponent'
+import DarkThemeToggler from '@/app/components/DarkModeTogglerComponent'
+import LocaleTogglerComponent from '@/app/components/LanguageTogglerComponent'
+
+// Data
+import { appLocalStorage } from '@/data/locaStorage'
+import { intl } from '@/i18n/intl'
+
+const ErrorMessage = {
+  "en": {
+    empty: "",
+    TaskNotFound:  "Task not found",
+    Unauthorized: "Unauthorized",
+    BadRequest: "Bad Request",
+    Forbidden: "Forbidden",
+    InternalServerError: "Internal Server Error",
+  },
+  "id": {
+    empty: "",
+    TaskNotFound:  "Tidak ditemukan",
+    Unauthorized: "Belum login",
+    BadRequest: "Bad Request",
+    Forbidden: "Akses dibatasi",
+    InternalServerError: "Internal Server Error",
+  }
 }
 
-const NoteNotFound = ({ errorMessage }: { errorMessage: ErrorMessage }) => {
+const TaskNotFound = ({ locale, errorCode }: { locale: string, errorCode: number }) => {
+  if (locale !== 'en' && locale !== 'id') {
+    console.error(`TaskNotFound: unknown locale: ${locale}, using default 'en'`)
+  }
+
+  const renderErrorMessage = () => {
+    if (errorCode === 400) {
+      return ErrorMessage[locale as keyof typeof ErrorMessage].BadRequest
+    } else if (errorCode === 401) {
+      return ErrorMessage[locale as keyof typeof ErrorMessage].Unauthorized
+    } else if (errorCode === 403) {
+      return ErrorMessage[locale as keyof typeof ErrorMessage].Forbidden
+    } else if (errorCode === 404) {
+      return ErrorMessage[locale as keyof typeof ErrorMessage].TaskNotFound
+    } else if (errorCode === 500) {
+      return ErrorMessage[locale as keyof typeof ErrorMessage].InternalServerError
+    } else {
+      console.error(`Unhandled error code: ${errorCode}`)
+    }
+  }
+
   return (
     <div className="bg-white dark:bg-white/70 h-max w-max pt-2 pb-8 px-16 rounded-lg m-auto">
       <Image
@@ -30,7 +75,7 @@ const NoteNotFound = ({ errorMessage }: { errorMessage: ErrorMessage }) => {
         height={100}
         alt="note not found icon"
       />
-      <p className="text-center font-bold text-lg">{errorMessage}</p>
+      <p className="text-center font-bold text-lg">{renderErrorMessage()}</p>
     </div>
   )
 }
@@ -44,8 +89,11 @@ export default function Home({ params }: { params: { id: string } }) {
   const [completed, setCompleted] = useState(false)
   const [updatedAt, setUpdatedAt] = useState((new Date()).toISOString())
 
+  // locale
+  const [locale, setLocale] = useState("en")
+
   // error
-  const [errorMessage, setErrorMessage] = useState<ErrorMessage>(ErrorMessage.empty)
+  const [errorCode, setErrorCode] = useState(200)
 
   const [isOk, setOk] = useState<boolean>()
   const [isLoading, setLoading] = useState(true)
@@ -60,9 +108,30 @@ export default function Home({ params }: { params: { id: string } }) {
   // theme
   const [isDarkmode, setDarkmode] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const localLocale = appLocalStorage.getLocale()
+    setLocale(localLocale)
+    intl.changeLocale(localLocale)
     refreshTheme()
+  }, [])
 
+  const toggleLocale = () => {
+    const toggled = locale === "en" ? "id" : "en"
+    intl.changeLocale(toggled)
+    appLocalStorage.changeLocale(toggled)
+    setLocale(toggled)
+  }
+
+  const refreshTheme = () => {
+    const isDarktheme = appLocalStorage.getDarkmode()
+    if (isDarktheme && !document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.add('dark')
+    } else if (!isDarktheme && document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark')
+    }
+  }
+
+  useEffect(() => {
     if (isInitiated && isOk) {
       const descriptionWrapperElement: HTMLTextAreaElement = document.querySelector('#descriptionWrapper')!
       descriptionWrapperElement.dataset.clonedVal = description
@@ -77,9 +146,6 @@ export default function Home({ params }: { params: { id: string } }) {
     setLoggedId(parseInt(payload.id))
 
     if (!isInitiated) {
-      const localDarkmode = appLocalStorage.getDarkmode()
-      setDarkmode(localDarkmode)
-
       if (params.id === "new") {
         setOk(true)
         setLoading(false)
@@ -90,17 +156,7 @@ export default function Home({ params }: { params: { id: string } }) {
             headers: { 'Authorization': 'Bearer ' + token }
           })
           if (!response.ok) {
-            if (response.status === 400) {
-              setErrorMessage(ErrorMessage.BadRequest)
-            } else if (response.status === 401) {
-              redirect('/login')
-            } else if (response.status === 403) {
-              setErrorMessage(ErrorMessage.Unauthorized)
-            } else if (response.status === 404) {
-              setErrorMessage(ErrorMessage.NoteNotFound)
-            } else if (response.status === 500) {
-              setErrorMessage(ErrorMessage.ServerError)
-            }
+            setErrorCode(response.status)
 
             setOk(false)
             setInitiated(true)
@@ -124,25 +180,17 @@ export default function Home({ params }: { params: { id: string } }) {
         setInitiated(true)
       }
     }
-  }, [isInitiated, isOk, isDarkmode, params.id, id, userId, title, description, completed, updatedAt])
-
-  const refreshTheme = () => {
-    const isDarktheme = appLocalStorage.getDarkmode()
-    if (isDarktheme && !document.documentElement.classList.contains('dark')) {
-      document.documentElement.classList.add('dark')
-    } else if (!isDarktheme && document.documentElement.classList.contains('dark')) {
-      document.documentElement.classList.remove('dark')
-    }
-  }
+  }, [isInitiated, isOk, errorCode, locale, isDarkmode, params.id, id, userId, title, description, completed, updatedAt])
 
   const toggleDarkmode = () => {
     appLocalStorage.toggleDarkmode()
     const modifiedDarkmode = appLocalStorage.getDarkmode()
     setDarkmode(modifiedDarkmode)
+    refreshTheme()
   }
 
   const handleLogout = () => {
-    document.cookie = "token=;SameSite=None; Secure"
+    document.cookie = "token=SameSite=None Secure"
     push("/login")
   }
 
@@ -214,8 +262,8 @@ export default function Home({ params }: { params: { id: string } }) {
             required
           />
           <div className="flex justify-between mt-1">
-            <p id="date" className='text-sm text-gray-400'>{showFormattedDate(updatedAt)}</p>
-            {completed && <div className="w-max text-xs px-2 py-1 rounded-lg text-white dark:text-white/70 border border-yellow-600 dark:border-none bg-yellow-400 dark:bg-yellow-600">Completed</div>}
+            <p id="date" className='text-sm text-gray-400'>{showFormattedDate(updatedAt, locale)}</p>
+            {completed && <div className="w-max text-xs px-2 py-1 rounded-lg text-white dark:text-white/70 border border-yellow-600 dark:border-none bg-yellow-400 dark:bg-yellow-600">{intl.lib.tasks.completed}</div>}
           </div>
           <div className="
                 grid
@@ -253,8 +301,8 @@ export default function Home({ params }: { params: { id: string } }) {
                 className="border dark:border-none rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
                 type="submit">
                 {params.id === "new"
-                  ? "Submit"
-                  : "Update"}
+                  ? intl.lib.tasks.submit
+                  : intl.lib.tasks.update}
               </button>
             </div>
           )}
@@ -270,14 +318,14 @@ export default function Home({ params }: { params: { id: string } }) {
     <div className="bg-slate-200 dark:bg-gray-700 min-h-screen transition transform duration-300" onClick={() => isModalSelected && setModalSelected(false)}>
       {isLoading && <>
         <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
-          <Loading />
+          <LoadingComponent />
           <div className="absolute bg-white opacity-40 w-full h-full z-10"></div>
         </div>
       </>}
 
-      {isInitiated && !isOk && <>
+      {!isLoading && isInitiated && !isOk && <>
         <div className="absolute grid w-screen h-screen justify-items-center items-center">
-          <NoteNotFound errorMessage={errorMessage ?? ""} />
+          <TaskNotFound errorCode={errorCode} locale={locale} />
         </div>
       </>
       }
@@ -299,7 +347,10 @@ export default function Home({ params }: { params: { id: string } }) {
 
           {/* Right */}
           <div className="flex gap-3">
-            <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            <LocaleTogglerComponent locale={locale} onClick={toggleLocale} />
+            <div className="ml-1">
+              <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            </div>
             <div className="relative">
               <Image
                 className="m-auto cursor-pointer"
@@ -310,8 +361,8 @@ export default function Home({ params }: { params: { id: string } }) {
                 alt="user icon"
               />
               <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
-                <button onClick={() => push(`/users/${loggedId}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white transition transform">Profile</button>
-                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white transition transform">Logout</button>
+                <button onClick={() => push(`/users/${loggedId}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
+                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>
             </div>
           </div>
@@ -319,5 +370,5 @@ export default function Home({ params }: { params: { id: string } }) {
         {renderBody()}
       </main>
     </div>
-  );
+  )
 }

@@ -1,17 +1,31 @@
 "use client"
 
+// Next.js and React
 import Image from 'next/image'
 import { redirect, useRouter } from 'next/navigation'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useLayoutEffect, useState } from 'react'
 
-import "@/app/globals.css"
-import TaskComponent from './components/TaskComponent'
-import { Task } from '@/models/enum/Task'
-import { Loading } from './components/loading'
+// Third Party / External library
 import JWT from 'jsonwebtoken'
+
+// Stylesheet
+import "@/app/globals.css"
+
+// Utils
+import { intl } from '@/i18n/intl'
 import { getToken } from './utils/lib'
+
+// Data
 import { appLocalStorage } from '@/data/locaStorage'
-import DarkThemeToggler from './components/DarkModeToggler'
+
+// Enums
+import { Task } from '@/models/enum/Task'
+
+// Components
+import TaskComponent from './components/TaskComponent'
+import DarkThemeToggler from './components/DarkModeTogglerComponent'
+import { LoadingComponent } from './components/LoadingComponent'
+import LocaleTogglerComponent from './components/LanguageTogglerComponent'
 
 function EmptyTask({ message }: { message: string }) {
   return (
@@ -45,13 +59,25 @@ export default function Home() {
   // nav
   const { push } = useRouter()
 
-  useEffect(() => {
+  // locale
+  const [locale, setLocale] = useState("en")
+
+  useLayoutEffect(() => {
+    const localLocale = appLocalStorage.getLocale()
+    setLocale(localLocale)
+    intl.changeLocale(localLocale)
     refreshTheme()
+  }, [])
 
+  const toggleLocale = () => {
+    const toggled = locale === "en" ? "id" : "en"
+    intl.changeLocale(toggled)
+    appLocalStorage.changeLocale(toggled)
+    setLocale(toggled)
+  }
+
+  useEffect(() => {
     if (!isInitiated) {
-      const localDarkmode = appLocalStorage.getDarkmode()
-      setDarkmode(localDarkmode)
-
       const { token, success } = getToken(document.cookie)
       if (!success) {
         redirect("/login")
@@ -93,10 +119,10 @@ export default function Home() {
   }, [isInitiated, isDarkmode])
 
   const refreshTheme = () => {
-    const isDarktheme = appLocalStorage.getDarkmode()
-    if (isDarktheme && !document.documentElement.classList.contains('dark')) {
+    const isDarkmode = appLocalStorage.getDarkmode()
+    if (isDarkmode && !document.documentElement.classList.contains('dark')) {
       document.documentElement.classList.add('dark')
-    } else if (!isDarktheme && document.documentElement.classList.contains('dark')) {
+    } else if (!isDarkmode && document.documentElement.classList.contains('dark')) {
       document.documentElement.classList.remove('dark')
     }
   }
@@ -105,6 +131,7 @@ export default function Home() {
     appLocalStorage.toggleDarkmode()
     const modifiedDarkmode = appLocalStorage.getDarkmode()
     setDarkmode(modifiedDarkmode)
+    refreshTheme()
   }
 
   const handleLogout = () => {
@@ -150,7 +177,7 @@ export default function Home() {
     if (isLoading) {
       return <>
         <div className="m-auto grid justify-items-center items-center z-20 opacity-40">
-          <Loading />
+          <LoadingComponent />
         </div>
       </>
     } else {
@@ -159,7 +186,7 @@ export default function Home() {
         return (
           <div className="grid gap-2">
             {activeTasks.map((el, i) => (
-              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} />
+              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} locale={locale} />
             ))}
           </div>
         )
@@ -173,7 +200,7 @@ export default function Home() {
     if (isLoading) {
       return <>
         <div className="m-auto grid justify-items-center items-center z-20 opacity-40">
-          <Loading />
+          <LoadingComponent />
         </div>
       </>
     } else {
@@ -182,7 +209,7 @@ export default function Home() {
         return (
           <div className="grid gap-2">
             {completedTasks.map((el, i) => (
-              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} />
+              <TaskComponent key={el.id} task={el} refreshTasks={refreshTasks} setLoading={setLoading} locale={locale} />
             ))}
           </div>
         )
@@ -196,7 +223,7 @@ export default function Home() {
     <div className="bg-slate-200 dark:bg-gray-700 min-h-screen transition transform duration-300" onClick={() => isModalSelected && setModalSelected(false)}>
       {!isInitiated && <div className="absolute grid w-screen h-full justify-items-center items-center z-20">
         <div className="absolute bg-white w-full h-full"></div>
-        <Loading />
+        <LoadingComponent />
         <div className="absolute bg-white/40 dark:bg-black/50 w-full h-full"></div>
       </div>}
       <main className="w-2/3 m-auto">
@@ -216,7 +243,10 @@ export default function Home() {
 
           {/* Right */}
           <div className="flex gap-3">
-            <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            <LocaleTogglerComponent locale={locale} onClick={toggleLocale} />
+            <div className="ml-1">
+              <DarkThemeToggler isDarkmode={isDarkmode} toggleDarkmode={toggleDarkmode} />
+            </div>
             <div className="relative">
               <Image
                 className="m-auto cursor-pointer"
@@ -227,8 +257,8 @@ export default function Home() {
                 alt="user icon"
               />
               <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
-                <button onClick={() => push(`/users/${id}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">Profile</button>
-                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">Logout</button>
+                <button onClick={() => push(`/users/${id}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
+                <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>
             </div>
           </div>
@@ -246,27 +276,27 @@ export default function Home() {
                   alt="search icon"
                 />
               </div>
-              <input className="border dark:border-none rounded-md cursor-pointer dark:bg-black/50 dark:hover:bg-black/70 dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform" id="search" type="text" placeholder="search" onChange={onSearch} />
+              <input className="border dark:border-none rounded-md cursor-pointer dark:bg-black/50 dark:hover:bg-black/70 dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform" id="search" type="text" placeholder={intl.lib.home.search} onChange={onSearch} />
             </div>
             <button
               className="border border-black/50 dark:hover:border-white/70 rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
               onClick={() => push(`/tasks/new`)}>
-              + Create
+              + {intl.lib.home.create}
             </button>
           </div>
 
           {/* Middle */}
           <div className="bg-white dark:bg-gray-800 h-max w-6/12 pt-2 pb-8 px-4 rounded-md mb-4">
-            <h2 className="font-bold dark:text-white/70">My Task</h2>
+            <h2 className="font-bold dark:text-white/70">{intl.lib.home.myTask}</h2>
             <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 dark:text-white/50 dark:hover:text-white/90 mt-2 cursor-pointer transition transform" onClick={() => push(`/tasks/new`)}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
-              Add a task
+              {intl.lib.home.addATask}
             </div>
             <div className="mt-2"></div>
             {renderActiveTasks()}
-            <h2 className="font-bold dark:text-white/70 mt-2">Completed</h2>
+            <h2 className="font-bold dark:text-white/70 mt-2">{intl.lib.home.completed}</h2>
             <div className="mt-2"></div>
             {renderCompletedTasks()}
           </div>

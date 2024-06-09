@@ -9,6 +9,12 @@ class AppLocalStorage {
   resetDarkmode() {
     window.localStorage.removeItem('darkmode')
   }
+  getLocale(): string {
+    return window.localStorage.getItem('locale') ?? "en"
+  }
+  changeLocale(locale: string) {
+    window.localStorage.setItem('locale', locale)
+  }
 }
 
 const appLocalStorage = new AppLocalStorage()

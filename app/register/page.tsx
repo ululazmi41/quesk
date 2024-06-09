@@ -7,7 +7,7 @@ import "@/app/style/loading.css"
 
 import { FormEvent, useEffect, useState } from 'react'
 import { redirect, useRouter } from 'next/navigation'
-import { Loading } from '../components/loading'
+import { LoadingComponent } from '../components/LoadingComponent'
 
 export default function Login() {
   const [isLoading, setLoading] = useState(false)
@@ -113,7 +113,7 @@ export default function Login() {
   return (
     <main className="grid bg-slate-200 dark:bg-gray-700 min-h-screen">
       {isLoading && <div className="absolute grid w-screen h-screen justify-items-center items-center z-20">
-        <Loading />
+        <LoadingComponent />
         <div className="absolute bg-white dark:bg-gray-400 opacity-40 w-full h-full z-10"></div>
       </div>}
       <div className="m-auto sm:w-96">
