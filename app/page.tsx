@@ -246,7 +246,7 @@ export default function Home() {
                   alt="search icon"
                 />
               </div>
-              <input className="border dark:border-none rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform" id="search" type="text" placeholder="search" onChange={onSearch} />
+              <input className="border dark:border-none rounded-md cursor-pointer dark:bg-black/50 dark:hover:bg-black/70 dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform" id="search" type="text" placeholder="search" onChange={onSearch} />
             </div>
             <button
               className="border border-black/50 dark:hover:border-white/70 rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
