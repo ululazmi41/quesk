@@ -1,8 +1,5 @@
-import fs from 'fs'
-import JWT from 'jsonwebtoken'
 import { database } from "@/data/database";
 import { NextResponse } from "next/server";
-import { jwtKeyPath } from '@/const/jwt';
 import { isTokenValid } from '../../helpers/jwt';
 
 export async function GET(

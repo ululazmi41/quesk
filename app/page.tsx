@@ -226,7 +226,7 @@ export default function Home() {
         <LoadingComponent />
         <div className="absolute bg-white/40 dark:bg-black/50 w-full h-full"></div>
       </div>}
-      <main className="w-2/3 m-auto">
+      <main className="sm:w-4/5 md:w-3/4 lg:w-2/3 m-auto">
         <nav className="flex justify-between pt-4 pb-2 px-4">
           {/* Left */}
           <div className="flex items-center cursor-pointer" onClick={() => push('/')}>
@@ -256,37 +256,36 @@ export default function Home() {
                 height={28}
                 alt="user icon"
               />
-              <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
+              <div className={(isModalSelected ? "block" : "hidden") + " absolute right-0 bg-[#666666] w-36 mt-2 z-20"}>
                 <button onClick={() => push(`/users/${id}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
                 <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>
             </div>
           </div>
         </nav>
-        <div className="flex mt-8">
+        <div className="mx-8 md:mx-auto w-5/6 grid justify-items-center md:flex mt-8">
           {/* Left */}
-          <div className="w-3/12 px-4 space-y-2">
+          <div className="w-full sm:w-4/5 md:w-1/3 xl:w-3/12 md:px-4 mb-4 space-y-2">
             <div className="relative">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                 <Image
-                  className=""
                   src="/search.png"
                   width={14}
                   height={14}
                   alt="search icon"
                 />
               </div>
-              <input className="border dark:border-none rounded-md cursor-pointer dark:bg-black/50 dark:hover:bg-black/70 dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform" id="search" type="text" placeholder={intl.lib.home.search} onChange={onSearch} />
+              <input className="w-full border dark:border-none rounded-md cursor-pointer dark:bg-black/50 dark:hover:bg-black/70 dark:text-white/70 pt-1 pb-2 pl-3 pr-4 transition transform" id="search" type="text" placeholder={intl.lib.home.search} onChange={onSearch} />
             </div>
             <button
-              className="border border-black/50 dark:hover:border-white/70 rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 w-max transition transform"
+              className="w-full md:w-max border border-black/50 dark:hover:border-white/70 rounded-md cursor-pointer bg-black dark:bg-black/50 hover:bg-gray-700 dark:hover:bg-dark/70 text-white dark:text-white/70 pt-1 pb-2 pl-3 pr-4 transition transform"
               onClick={() => push(`/tasks/new`)}>
               + {intl.lib.home.create}
             </button>
           </div>
 
           {/* Middle */}
-          <div className="bg-white dark:bg-gray-800 h-max w-6/12 pt-2 pb-8 px-4 rounded-md mb-4">
+          <div className="w-full sm:w-4/5 md:w-2/3 xl:w-6/12 bg-white dark:bg-gray-800 h-max pt-2 pb-8 px-4 rounded-md mb-4">
             <h2 className="font-bold dark:text-white/70">{intl.lib.home.myTask}</h2>
             <div className="flex gap-2 w-max pr-2 text-blue-600 hover:text-blue-900 dark:text-white/50 dark:hover:text-white/90 mt-2 cursor-pointer transition transform" onClick={() => push(`/tasks/new`)}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
@@ -303,7 +302,7 @@ export default function Home() {
         </div>
 
         {/* Right */}
-        <div className="w-3/12"></div>
+        <div className="xl:w-3/12"></div>
       </main>
     </div>
   );

@@ -53,7 +53,7 @@ const timeLeft = (date: string, locale: string) => {
     if (locale === 'en') {
       return 'last year'
     } else if (locale === 'id') {
-      return 'setahun lalu'
+      return `${diffYears} tahun lalu`
     }
   } else if (diffYears > 1) {
     if (locale === 'en') {
@@ -68,7 +68,7 @@ const timeLeft = (date: string, locale: string) => {
     if (locale === 'en') {
       return 'last month'
     } else if (locale === 'id') {
-      return 'sebulan lalu'
+      return `${diffMonths} bulan lalu`
     }
   } else if (diffMonths > 1) {
     if (locale === 'en') {
@@ -105,7 +105,7 @@ const timeLeft = (date: string, locale: string) => {
       if (locale === 'en') {
         return `last week`
       } else if (locale === 'id') {
-        return `seminggu lalu`
+        return `${weekDiff} minggu lalu`
       }
     } else if (weekDiff < 5) {
       if (locale === 'en') {

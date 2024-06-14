@@ -29,7 +29,7 @@ import { intl } from '@/i18n/intl'
 const ErrorMessage = {
   "en": {
     empty: "",
-    TaskNotFound:  "Task not found",
+    TaskNotFound: "Task not found",
     Unauthorized: "Unauthorized",
     BadRequest: "Bad Request",
     Forbidden: "Forbidden",
@@ -37,7 +37,7 @@ const ErrorMessage = {
   },
   "id": {
     empty: "",
-    TaskNotFound:  "Tidak ditemukan",
+    TaskNotFound: "Tidak ditemukan",
     Unauthorized: "Belum login",
     BadRequest: "Bad Request",
     Forbidden: "Akses dibatasi",
@@ -152,7 +152,7 @@ export default function Home({ params }: { params: { id: string } }) {
         setInitiated(true)
       } else {
         const asyncFunc = async () => {
-          const response = await fetch(`/api/tasks/${parseInt(params.id)}`, {
+          const response = await fetch(`/api/tasks/${params.id}`, {
             headers: { 'Authorization': 'Bearer ' + token }
           })
           if (!response.ok) {
@@ -244,12 +244,8 @@ export default function Home({ params }: { params: { id: string } }) {
     }
 
     return (
-      <div className="flex mt-8">
-        {/* Left */}
-        <div className="w-2/12"></div>
-
-        {/* Middle */}
-        <form className="bg-white dark:bg-gray-800 h-max w-8/12 pt-2 pb-8 px-4 rounded-sm" onSubmit={handleSubmitWrapper}>
+      <div className="flex mt-8 justify-center">
+        <form className="w-10/12 lg:w-8/12 bg-white dark:bg-gray-800 min-h-64 pt-2 pb-8 px-4 rounded-sm" onSubmit={handleSubmitWrapper}>
           <input
             id="title"
             type="text"
@@ -307,9 +303,6 @@ export default function Home({ params }: { params: { id: string } }) {
             </div>
           )}
         </form>
-
-        {/* Right */}
-        <div className="w-2/12"></div>
       </div>
     )
   }
@@ -330,7 +323,7 @@ export default function Home({ params }: { params: { id: string } }) {
       </>
       }
 
-      <main className="w-2/3 m-auto">
+      <main className="sm:w-4/5 md:w-3/4 lg:w-2/3 m-auto">
         <nav className="relative flex justify-between pt-4 pb-2 px-4">
           {/* Left */}
           <div className="flex items-center cursor-pointer" onClick={() => push('/')}>
@@ -360,7 +353,7 @@ export default function Home({ params }: { params: { id: string } }) {
                 height={28}
                 alt="user icon"
               />
-              <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
+              <div className={(isModalSelected ? "block" : "hidden") + " absolute right-0 bg-[#666666] w-36 mt-2 z-20"}>
                 <button onClick={() => push(`/users/${loggedId}`)} className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
                 <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>

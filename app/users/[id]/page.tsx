@@ -149,7 +149,7 @@ const EditDialogComponent = ({ username, email, setModalOpened, refresh }: { use
 
   return (
     <div className="absolute grid w-screen h-screen z-10">
-      <form onSubmit={handleSubmit} className="z-20 m-auto relative bg-white dark:bg-gray-700 px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
+      <form onSubmit={handleSubmit} className="z-20 m-auto relative bg-white dark:bg-gray-700 px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto w-5/6 sm:w-3/5 md:w-auto sm:max-w-lg sm:rounded-lg sm:px-10">
         <div className="mx-auto max-w-md">
           <div className="text-center font-semibold text-xl dark:text-gray-200">Edit Detail</div>
           <div className="divide-y divide-gray-300/50">
@@ -349,7 +349,7 @@ const PasswordDialogComponent = ({ setModalOpened, refresh }: { setModalOpened: 
 
   return (
     <div className="absolute grid w-screen h-screen z-10">
-      <form onSubmit={handleSubmit} className="z-20 m-auto relative bg-white dark:bg-gray-700 px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
+      <form onSubmit={handleSubmit} className="z-20 m-auto relative bg-white dark:bg-gray-700 px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto w-5/6 sm:w-3/5 md:w-auto sm:max-w-lg sm:rounded-lg sm:px-10">
         <div className="mx-auto max-w-md">
           <div className="text-center font-semibold text-xl dark:text-gray-200">Change Password</div>
           <div className="divide-y divide-gray-300/50">
@@ -591,7 +591,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 height={28}
                 alt="user icon"
               />
-              <div className={(isModalSelected ? "block" : "hidden") + " absolute bg-[#666666] w-36 mt-2 z-20"}>
+              <div className={(isModalSelected ? "block" : "hidden") + " absolute right-0 bg-[#666666] w-36 mt-2 z-20"}>
                 <button className="pl-2 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.profile}</button>
                 <button onClick={handleLogout} className="pl-2 pb-1 w-36 h-8 hover:bg-black text-left text-white dark:text-white/70 transition transform">{intl.lib.nav.logout}</button>
               </div>
