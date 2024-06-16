@@ -62,14 +62,14 @@ function TaskComponent({ locale, refreshTasks, task, setLoading }: { locale: str
   return (
     <div className="border-red-400 group flex justify-between items-center">
       {/* Left */}
-      <div className="pl-1 grid grid-cols-[max-content_1fr] gap-x-3 items-center cursor-pointer hover:text-gray-700">
+      <div className="pl-1 grid grid-cols-[max-content_1fr] gap-x-3 items-center hover:text-gray-700">
         {/* Row 1: Status and title */}
         <div>
           {task.completed
             ? <Image
               width={14}
               height={14}
-              className=""
+              className="cursor-pointer"
               src="/check.png"
               alt="task is completed icon"
               onClick={() => changeCompletedTo(false)}
@@ -77,17 +77,17 @@ function TaskComponent({ locale, refreshTasks, task, setLoading }: { locale: str
             : <Image
               width={14}
               height={14}
-              className=""
+              className="cursor-pointer"
               src="/circle.png"
               alt="task not completed icon"
               onClick={() => changeCompletedTo(true)}
             />}
         </div>
-        <p className="mb-1 dark:text-white/90 dark:hover:text-white/90" onClick={() => navigateTo(task.id!)}>{task.title}</p>
+        <p className="mb-1 dark:text-white/90 dark:hover:text-white/90 cursor-pointer" onClick={() => navigateTo(task.id!)}>{task.title}</p>
 
         {/* Row 2: Last updated */}
         <div></div>
-        <div className={"w-max text-xs px-2 py-1 rounded-lg text-white border " + (handleClassName())}>{timeLeft(task.updated_at as string, locale)}</div>
+        <div className={"w-max text-xs px-2 py-1 rounded-lg text-white border cursor-default " + (handleClassName())}>{timeLeft(task.updated_at as string, locale)}</div>
       </div>
 
       {/* Right */}
