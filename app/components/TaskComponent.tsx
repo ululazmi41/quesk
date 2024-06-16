@@ -62,7 +62,7 @@ function TaskComponent({ locale, refreshTasks, task, setLoading }: { locale: str
   return (
     <div className="border-red-400 group flex justify-between items-center">
       {/* Left */}
-      <div className="pl-1 grid grid-cols-[max-content_1fr] gap-x-3 items-center cursor-pointer hover:text-gray-700" onClick={() => navigateTo(task.id!)}>
+      <div className="pl-1 grid grid-cols-[max-content_1fr] gap-x-3 items-center cursor-pointer hover:text-gray-700">
         {/* Row 1: Status and title */}
         <div>
           {task.completed
@@ -83,7 +83,7 @@ function TaskComponent({ locale, refreshTasks, task, setLoading }: { locale: str
               onClick={() => changeCompletedTo(true)}
             />}
         </div>
-        <p className="mb-1 dark:text-white/90 dark:hover:text-white/90">{task.title}</p>
+        <p className="mb-1 dark:text-white/90 dark:hover:text-white/90" onClick={() => navigateTo(task.id!)}>{task.title}</p>
 
         {/* Row 2: Last updated */}
         <div></div>

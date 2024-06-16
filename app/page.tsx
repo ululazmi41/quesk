@@ -37,7 +37,7 @@ function EmptyTask({ message }: { message: string }) {
         height={84}
         alt="no task created icon"
       />
-      <p className="font-lg text-center mt-2 text-gray-800">{message}</p>
+      <p className="dark:text-white/70 font-lg text-center mt-2 text-gray-800">{message}</p>
     </>
   )
 }

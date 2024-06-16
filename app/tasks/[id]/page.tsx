@@ -245,7 +245,7 @@ export default function Home({ params }: { params: { id: string } }) {
 
     return (
       <div className="flex mt-8 justify-center">
-        <form className="w-10/12 lg:w-8/12 bg-white dark:bg-gray-800 min-h-64 pt-2 pb-8 px-4 rounded-sm" onSubmit={handleSubmitWrapper}>
+        <form className="w-10/12 lg:w-8/12 bg-white dark:bg-gray-800 pt-2 pb-8 px-4 rounded-sm" onSubmit={handleSubmitWrapper}>
           <input
             id="title"
             type="text"
@@ -283,7 +283,7 @@ export default function Home({ params }: { params: { id: string } }) {
             <textarea
               className="w-full bg-transparent text-md border border-transparent appearance-none rounded py-2.5 outline-none focus:outline-none"
               id="description"
-              rows={2}
+              rows={6}
               onInput={onDescriptionChangeHandler}
               placeholder="Description"
               value={description}
